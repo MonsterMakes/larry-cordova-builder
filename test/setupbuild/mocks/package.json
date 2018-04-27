@@ -1,0 +1,40 @@
+{
+    "name": "wonky-mobile-app",
+    "version": "0.0.1",
+    "description": "This is the wonky app",
+    "private": true,
+    "dependencies": {
+        "cordova": "^8.0.0",
+        "cordova-android": "^7.0.0"
+    },
+    "larry-hybrid-app":{
+        "configXmlGeneration": {
+            "mutations": [
+                {
+                    "op": "add",
+                    "path": "/widget/plugin",
+                    "value": {
+                        "variable": [
+                            {
+                                "$":{
+                                    "name":"FABRIC_API_KEY",
+                                    "value": "somekey"
+                                }
+                            },
+                            {
+                                "$":{
+                                    "name":"FABRIC_API_SECRET",
+                                    "value": "somesecret"
+                                }
+                            }
+                        ],
+                        "$":{
+                            "name":"cordova-fabric-plugin",
+                            "spec": "^1.1.14-dev"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
