@@ -4,7 +4,7 @@ const chai = require('chai');
 const should = chai.should();
 const expect = chai.expect;
 
-const TestUtils = require('../TestUtils');
+const testUtils = new (require('../TestUtils'))(__dirname);
 const XmlMutator = require("../../src/XmlMutator");
 
 const TEST_NAME = "Test XmlMutator's _build method()";
@@ -63,7 +63,7 @@ describe(TEST_NAME, () => {
             })
             .catch(done);
     });
-    xit("Examples to reverse engineer the json structure", (done) => {
+    it.skip("Examples to reverse engineer the json structure", (done) => {
         let examples = [
             '<?xml version="1.0" encoding="UTF-8"?><root><div></div></root>',
             '<?xml version="1.0" encoding="UTF-8"?><root><div>FirstDiv</div><div>SecondDiv</div></root>',

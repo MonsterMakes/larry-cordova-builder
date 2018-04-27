@@ -1,7 +1,7 @@
 {
   "name": "@monstermakes/larry-hybrid-app-builder",
   "description": "Dynamically builds a cordova hybrid application for IOS and android based previously produced set of web assets.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "bin": {
     "larry-hybrid": "./bin/larry-hybrid.js"
   },
@@ -16,13 +16,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "echo '=> Linting' && eslint **/*.js",
-    "test": "echo '=> Running Tests' && mocha test/**/*.spec.js",
-    "test-coverage": "echo '=> Running Tests w/ Coverage' && nyc mocha test/**/*.spec.js",
-    "test-coverage:http": "echo '=> Running Tests w/ Coverage' && nyc --reporter=html mocha test/**/*.spec.js",
-    "watch-test": "echo '=> Running Test Watcher' && mocha --watch test/**/*.spec.js",
-    "readiness-check": "echo '=> Checking Readiness' && npm run lint && npm test",
-    "prepublishOnly": "npm run readiness-check"
+    "test": "echo '=> Running Tests' && mocha -u tdd --timeout 60000 --colors test/**/*.spec.js"
   },
   "dependencies": {
     "cordova": "^8.0.0",

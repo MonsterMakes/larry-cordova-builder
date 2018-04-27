@@ -12,11 +12,13 @@ const pathUtils = require("path");
 const fs = require("fs-extra");
 const TEST_DIR_PREFIX = `${__dirname}/working_dir/`;
 
-const TestUtils = require('../TestUtils');
+const testUtils = new (require('../TestUtils'))(__dirname);
 
 const CordovaBuild = require("../../src/CordovaBuild");
 const _setupEmptyCordovaDir = (path)=>{
     fs.mkdirsSync(pathUtils.join(path,'node_modules','wonky-mobile-web','dist'));
+
+    fs.copySync(pathUtils.join(__dirname,'..','mocks','res'),pathUtils.join(path,'res'));
     
     fs.writeFileSync(pathUtils.join(path,"package.json"),JSON.stringify(require('./mocks/package.json'),null,'\t'));
 }
@@ -24,10 +26,10 @@ const _setupEmptyCordovaDir = (path)=>{
 const TEST_NAME = "Test CordovaBuild's setup()";
 describe(TEST_NAME, () => {
     before(()=>{
-        TestUtils.cleanUpWorkingDirs();
+        testUtils.cleanUpWorkingDirs();
     })
 	it("should setup required directories for cordova and a default config.xml", () => {
-        let testDir = TestUtils.getUniqueTestDirPath();
+        let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
         
@@ -48,11 +50,11 @@ describe(TEST_NAME, () => {
                 expect(platformsDir).to.exist;
 
                 let configXml = file(testDir+"config.xml");
-                configXml.with.content(require("../../src/BaseXmlConfig"));
+                expect(configXml).to.exist;
             });
     });
-    it.only("should setup required directories for cordova and a default config.xml using package.json", () => {
-        let testDir = TestUtils.getUniqueTestDirPath();
+    it("should setup required directories for cordova and a default config.xml using package.json", () => {
+        let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
         
@@ -70,7 +72,7 @@ describe(TEST_NAME, () => {
                 expect(platformsDir).to.exist;
 
                 let configXml = file(testDir+"config.xml");
-                configXml.with.content(require("../../src/BaseXmlConfig"));
+                expect(configXml).to.exist;
             });
     });
     

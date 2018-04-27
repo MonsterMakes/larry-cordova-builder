@@ -2,16 +2,19 @@
 const fs = require("fs-extra");
 
 class TestUtils {
-    static cleanUpWorkingDirs(testName) {
+    constructor(cwd){
+        this._cwd = cwd || process.cwd();
+    }
+    cleanUpWorkingDirs(testName) {
         //Clean up any previous tests
-        fs.removeSync(TestUtils.getWorkingDir());
-        fs.mkdirsSync(TestUtils.getWorkingDir());
+        fs.removeSync(this.getWorkingDir());
+        fs.mkdirsSync(this.getWorkingDir());
     }
-    static getUniqueTestDirPath () {
-        return TestUtils.getWorkingDir() + new Date().getTime() +"/";
+    getUniqueTestDirPath () {
+        return this.getWorkingDir(this._cwd) + new Date().getTime() +"/";
     }
-    static getWorkingDir(){
-        return `${__dirname}/WORKING_DIRECTORY/`;
+    getWorkingDir(){
+        return `${this._cwd}/WORKING_DIRECTORY/`;
     }
 };
 module.exports=TestUtils;

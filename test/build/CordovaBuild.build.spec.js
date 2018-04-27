@@ -12,22 +12,22 @@ const pathUtils = require("path");
 const fs = require("fs-extra");
 const TEST_DIR_PREFIX = `${__dirname}/working_dir/`;
 
-const TestUtils = require('../TestUtils');
+const testUtils = new (require('../TestUtils'))(__dirname);
 
 const CordovaBuild = require("../../src/CordovaBuild");
 const _setupEmptyCordovaDir = (path)=>{
     fs.mkdirsSync(pathUtils.join(path,'node_modules','wonky-mobile-web','dist'));
 
-    fs.copySync(pathUtils.join(__dirname,'mocks','res'),pathUtils.join(path,'res'));
+    fs.copySync(pathUtils.join(__dirname,'..','mocks','res'),pathUtils.join(path,'res'));
 }
 
 const TEST_NAME = "Test CordovaBuild's build()";
 describe(TEST_NAME, () => {
     before(()=>{
-        TestUtils.cleanUpWorkingDirs();
+        testUtils.cleanUpWorkingDirs();
     })
-    it.only("should build a simple app", () => {
-        let testDir = TestUtils.getUniqueTestDirPath();
+    it("should build a simple app", () => {
+        let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
         
