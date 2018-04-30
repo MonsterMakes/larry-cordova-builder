@@ -19,8 +19,6 @@ class XmlMutator{
                 else{
                     return new Promise((resolve,reject)=>{
                         var parser = new xml2js.Parser({
-                            // emptyTag: [],
-                            // explicitChildren: true
                         });
                         parser.parseString(xmlStr, function(err,result){
                             if(err){
@@ -88,7 +86,10 @@ class XmlMutator{
                                     let lodashSelector = mutation.path.replace(/\//ig,'.');
                                     lodashSelector = lodashSelector.replace(/\.-/ig,'');
                                     lodashSelector = lodashSelector.slice(1);
-                                    _.set(xmlObj,lodashSelector,{});
+                                    let pathExists = _.get(xmlObj,lodashSelector,null);
+                                    if(!pathExists){
+                                        _.set(xmlObj,lodashSelector,{});
+                                    }
                                 }
                                 let results = jsonPatch.applyOperation(xmlObj,mutation);
                             }

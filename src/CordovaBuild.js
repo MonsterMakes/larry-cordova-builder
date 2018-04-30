@@ -38,7 +38,7 @@ class CordovaBuild{
 
         let seededMutations = [
             //set the applicationName
-            (xmlObj)=>{
+            (xmlObj,config)=>{
                 xmlObj.widget.name = this._appName;
                 xmlObj.widget.description = this._appDescription;
                 xmlObj.widget.$.version = this._appVersion;

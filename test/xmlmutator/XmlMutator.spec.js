@@ -63,6 +63,27 @@ describe(TEST_NAME, () => {
             })
             .catch(done);
     });
+    it("should add element to an array of existing elements", (done) => {
+        let xmlWriter = new XmlMutator('<root><plugin name="cordova-plugin-device" spec="^2.0.2" /><plugin name="cordova-plugin-jailbreak-detection" spec="^0.1.0" /><plugin name="cordova.plugins.diagnostic" spec="^4.0.5" /></root>',[
+            {
+                "op": "add",
+                "path": "/root/plugin/-",
+                "value": {
+                    "$": {
+                        "name": "cordova-fabric-plugin",
+                        "spec": "^1.1.14-dev"
+                    }
+                }
+            }
+        ]);
+        
+        xmlWriter.build()
+            .then((results)=>{ 
+                results.should.deep.equal(`<?xml version="1.0" encoding="UTF-8"?>\n<root>\n\t<plugin name="cordova-plugin-device" spec="^2.0.2"></plugin>\n\t<plugin name="cordova-plugin-jailbreak-detection" spec="^0.1.0"></plugin>\n\t<plugin name="cordova.plugins.diagnostic" spec="^4.0.5"></plugin>\n\t<plugin name="cordova-fabric-plugin" spec="^1.1.14-dev"></plugin>\n</root>`);
+                done();          
+            })
+            .catch(done);
+    });
     it.skip("Examples to reverse engineer the json structure", (done) => {
         let examples = [
             '<?xml version="1.0" encoding="UTF-8"?><root><div></div></root>',

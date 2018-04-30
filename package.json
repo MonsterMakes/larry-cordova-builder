@@ -1,22 +1,24 @@
 {
   "name": "@monstermakes/larry-hybrid-app-builder",
   "description": "Dynamically builds a cordova hybrid application for IOS and android based previously produced set of web assets.",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "bin": {
     "larry-hybrid": "./bin/larry-hybrid.js"
   },
   "repository": {
-    "type":"git",
+    "type": "git",
     "url": "git@github.com:MonsterMakes/larry-hybrid-app-builder.git"
   },
   "author": {
-    "name" : "Jacob Locken", 
-    "email" : "monster@monstermakes.tech", 
-    "url" : "https://monstermakes.tech"
+    "name": "Jacob Locken",
+    "email": "monster@monstermakes.tech",
+    "url": "https://monstermakes.tech"
   },
   "license": "MIT",
   "scripts": {
-    "test": "echo '=> Running Tests' && mocha -u tdd --timeout 60000 --colors test/**/*.spec.js"
+    "test": "echo '=> Running Tests' && mocha -u tdd --timeout 60000 --colors test/**/*.spec.js",
+    "readiness-check": "echo '=> Checking Readiness' && npm run test",
+    "prepublishOnly": "npm run readiness-check"
   },
   "dependencies": {
     "cordova": "^8.0.0",

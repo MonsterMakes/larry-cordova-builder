@@ -12,7 +12,7 @@
             "mutations": [
                 {
                     "op": "add",
-                    "path": "/widget/plugin",
+                    "path": "/widget/plugin/-",
                     "value": {
                         "variable": [
                             {

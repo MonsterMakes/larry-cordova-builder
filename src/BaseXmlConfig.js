@@ -16,9 +16,29 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     <preference name="SplashScreenSpinnerColor" value="white" />
     <preference name="TopActivityIndicator" value="white" />
     <engine name="android" spec="^7.0.0" />
-
+    <platform name="ios">
+        <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" target="*-Info.plist">
+            <false />
+        </config-file>
+        <icon height="57" platform="ios" src="res/icon/ios/icon.png" width="57" />
+        <icon height="114" platform="ios" src="res/icon/ios/icon@2x.png" width="114" />
+        <icon height="40" platform="ios" src="res/icon/ios/icon-40.png" width="40" />
+        <icon height="80" platform="ios" src="res/icon/ios/icon-40@2x.png" width="80" />
+        <icon height="50" platform="ios" src="res/icon/ios/icon-50.png" width="50" />
+        <icon height="100" platform="ios" src="res/icon/ios/icon-50@2x.png" width="100" />
+        <icon height="60" platform="ios" src="res/icon/ios/icon-60.png" width="60" />
+        <icon height="120" platform="ios" src="res/icon/ios/icon-60@2x.png" width="120" />
+        <icon height="180" platform="ios" src="res/icon/ios/icon-60@3x.png" width="180" />
+        <icon height="72" platform="ios" src="res/icon/ios/icon-72.png" width="72" />
+        <icon height="144" platform="ios" src="res/icon/ios/icon-72@2x.png" width="144" />
+        <icon height="76" platform="ios" src="res/icon/ios/icon-76.png" width="76" />
+        <icon height="152" platform="ios" src="res/icon/ios/icon-76@2x.png" width="152" />
+        <icon height="29" platform="ios" src="res/icon/ios/icon-small.png" width="29" />
+        <icon height="58" platform="ios" src="res/icon/ios/icon-small@2x.png" width="58" />
+        <icon height="87" platform="ios" src="res/icon/ios/icon-small@3x.png" width="87" />
+        <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
+    </platform>
     <platform name="android">
-        <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <icon density="ldpi" src="res/icon/android/ldpi.png" />
         <icon density="mdpi" src="res/icon/android/mdpi.png" />

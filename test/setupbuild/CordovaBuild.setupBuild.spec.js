@@ -73,6 +73,7 @@ describe(TEST_NAME, () => {
 
                 let configXml = file(testDir+"config.xml");
                 expect(configXml).to.exist;
+                expect(configXml).to.match(/cordova-plugin-device/);           
             });
     });
     
