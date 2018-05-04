@@ -1,0 +1,168 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+#update_fastlane
+
+currentDir = File.expand_path("../", File.dirname(__FILE__))
+
+UI.message "Project root is #{currentDir}"
+
+########################################################
+#BUILD()
+########################################################
+lane :build do | options |
+  if options[:targetPlatform] == 'ios'
+    Fastlane::LaneManager.cruise_lane("ios", "build", options)
+  elsif options[:targetPlatform] == 'android'
+    Fastlane::LaneManager.cruise_lane("android", "build", options)
+  #all case
+  elsif [nil, 'all'].include?(options[:targetPlatform])
+    Fastlane::LaneManager.cruise_lane("ios", "build", options)
+    Fastlane::LaneManager.cruise_lane("android", "build", options)
+  else
+    UI.user_error!("(#{options[:targetPlatform]}) is an invalid targetPlatform, valid options are android, ios, all!")
+  end
+end
+########################################################
+#LAUNCH()
+########################################################
+lane :launch do | options |
+  if options[:targetPlatform] == 'ios'
+    Fastlane::LaneManager.cruise_lane("ios", "launch", options)
+  elsif options[:targetPlatform] == 'android'
+    Fastlane::LaneManager.cruise_lane("android", "launch", options)
+  #all case
+  elsif [nil, 'all'].include?(options[:targetPlatform])
+    Fastlane::LaneManager.cruise_lane("ios", "launch", options)
+    Fastlane::LaneManager.cruise_lane("android", "launch", options)
+  else
+    UI.user_error!("(#{options[:targetPlatform]}) is an invalid targetPlatform, valid options are android, ios, all!")
+  end
+end
+########################################################
+#RELEASE()
+########################################################
+lane :release do | options |
+  if options[:targetPlatform] == 'ios'
+    Fastlane::LaneManager.cruise_lane("ios", "release", options)
+  elsif options[:targetPlatform] == 'android'
+    Fastlane::LaneManager.cruise_lane("android", "release", options)
+  #all case
+  elsif [nil, 'all'].include?(options[:targetPlatform])
+    Fastlane::LaneManager.cruise_lane("ios", "release", options)
+    Fastlane::LaneManager.cruise_lane("android", "release", options)
+  else
+    UI.user_error!("(#{options[:targetPlatform]}) is an invalid targetPlatform, valid options are android, ios, all!")
+  end
+end
+########################################################
+#SUBMIT()
+########################################################
+lane :submit do | options |
+  if options[:targetPlatform] == 'ios'
+    Fastlane::LaneManager.cruise_lane("ios", "submit", options)
+  elsif options[:targetPlatform] == 'android'
+    Fastlane::LaneManager.cruise_lane("android", "submit", options)
+  #all case
+  elsif [nil, 'all'].include?(options[:targetPlatform])
+    Fastlane::LaneManager.cruise_lane("ios", "submit", options)
+    Fastlane::LaneManager.cruise_lane("android", "submit", options)
+  else
+    UI.user_error!("(#{options[:targetPlatform]}) is an invalid targetPlatform, valid options are android, ios, all!")
+  end
+end
+
+########################################################
+#START PLATFORM android
+########################################################
+platform :android do
+  ##########
+  #BUILD()
+  ##########
+  desc "Build the android application."
+  lane :build do
+    UI.message "android build()"
+    cordova(
+      platform: 'android',
+      release: false
+    )
+  end
+  ##########
+  #LAUNCH()
+  ##########
+  lane :launch do
+    UI.message "android launch()"
+    
+    adb(
+      command: "-d install -r #{currentDir}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
+    )
+    adb(
+      command: "shell am start -n {{appBundleId}}/.MainActivity"
+    )
+  end
+  ##########
+  #RELEASE()
+  ##########
+  lane :release do
+    UI.message "android release()"
+  end
+  ##########
+  #SUBMIT()
+  ##########
+  lane :submit do
+    UI.message "android submit()"
+  end
+end
+########################################################
+#END PLATFORM android
+#START PLATFORM ios
+########################################################
+platform :ios do
+  ##########
+  #BUILD()
+  ##########
+  desc "Build the ios application"
+  lane :build do
+    UI.message "ios build()"
+    match(type: 'development')
+    cordova(
+      platform: 'ios',
+      release: false,
+      type: 'development'
+    )
+  end
+  ##########
+  #LAUNCH()
+  ##########
+  lane :launch do
+    UI.message "ios launch()"
+    install_on_device(
+      ipa: "#{currentDir}/platforms/ios/build/device/{{appName}}.ipa"
+    )
+  end
+  ##########
+  #RELEASE()
+  ##########
+  lane :release do
+    UI.message "ios release()"
+  end
+  ##########
+  #SUBMIT()
+  ##########
+  lane :submit do
+    UI.message "ios submit()"
+  end
+end
+########################################################
+#END PLATFORM ios
+########################################################

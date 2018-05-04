@@ -15,7 +15,7 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="SplashScreenSpinnerColor" value="white" />
     <preference name="TopActivityIndicator" value="white" />
-    <engine name="android" spec="^7.0.0" />
+    <engine name="ios" spec="^4.5.4" />
     <platform name="ios">
         <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" target="*-Info.plist">
             <false />
@@ -38,8 +38,12 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
         <icon height="87" platform="ios" src="res/icon/ios/icon-small@3x.png" width="87" />
         <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
     </platform>
+    <engine name="android" spec="^7.0.0" />
     <platform name="android">
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:allowBackup="false" />
+        </edit-config>
         <icon density="ldpi" src="res/icon/android/ldpi.png" />
         <icon density="mdpi" src="res/icon/android/mdpi.png" />
         <icon density="hdpi" src="res/icon/android/hdpi.png" />
@@ -52,9 +56,6 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
         <splash density="port-xhdpi" src="res/screen/android/splash-port-xhdpi.png" />
         <splash density="port-xxhdpi" src="res/screen/android/splash-port-xxhdpi.png" />
         <splash density="port-xxxhdpi" src="res/screen/android/splash-port-xxxhdpi.png" />
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <application android:allowBackup="false" />
-        </edit-config>
     </platform>
     <plugin name="cordova-plugin-device" spec="^2.0.2" />
     <plugin name="cordova-plugin-jailbreak-detection" spec="^0.1.0" />

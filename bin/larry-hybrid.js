@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-const CordovaBuild = require("../index").CordovaBuild;
+const HybridAppBuilder = require("../index").HybridAppBuilder;
 const vorpal = require('vorpal')();
 const _ = require("lodash");
 const pathUtils = require("path");
@@ -35,19 +35,18 @@ function setupCordova(args) {
 			config.webPackageLocation = pathUtils.resolve(args.options.webPackageLocation);
 		}
 		vorpal.log('Using this configuration:\n'+JSON.stringify(config,null,'\t'));
-		let cordovaBuild = new CordovaBuild(config);
+		let hybridAppBuilder = new HybridAppBuilder(config);
 		
-		cordovaBuild.setupBuild()
+		hybridAppBuilder.setupBuild()
 			.then(() => {
-				resolve(cordovaBuild);
+				resolve(hybridAppBuilder);
 			})
 			.catch(reject);
 	});
 }
 
 vorpal
-	.command('build', 'Will build your hybrid app, all platforms unless --target is used.')
-	.option('--target <target>', 'The target platform to be built.') //TODO
+	.command('launch-android', 'Will launch your hybrid app on an android device.')
 	.option('--config <config>', 'Path to the json file to configure the build.')
 	.option('--cwd <cwd>', 'The working directory to use instead of the current directory.')
 	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
@@ -55,8 +54,41 @@ vorpal
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
 		return setupCordova(args)
-			.then((cordovaBuild) => {
-				return cordovaBuild.build('debug','android');//TODO
+			.then((hybridAppBuilder) => {
+				return hybridAppBuilder.launch('android');
+			});
+	});
+
+vorpal
+	.command('launch-ios', 'Will launch your hybrid app on an android device.')
+	.option('--config <config>', 'Path to the json file to configure the build.')
+	.option('--cwd <cwd>', 'The working directory to use instead of the current directory.')
+	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
+	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
+	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
+	.action(function(args){
+		return setupCordova(args)
+			.then((hybridAppBuilder) => {
+				return hybridAppBuilder.launch('ios');
+			});
+	});
+
+vorpal
+	.command('build', 'Will build your hybrid app, all platforms unless --target is used.')
+	.option('--target <target>', 'The target platform to be built.')
+	.option('--config <config>', 'Path to the json file to configure the build.')
+	.option('--cwd <cwd>', 'The working directory to use instead of the current directory.')
+	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
+	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
+	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
+	.action(function(args){
+		return setupCordova(args)
+			.then((hybridAppBuilder) => {
+				let target = 'all';
+				if(args.options.target) {
+					target = args.options.target;
+				}
+				return hybridAppBuilder.build('debug',target);
 			})
 			.then(() => {
 				vorpal.log('Your App has been successfully built.');
@@ -73,7 +105,7 @@ vorpal
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
 		return setupCordova(args)
-			.then((cordovaBuild) => {
+			.then((hybridAppBuilder) => {
 				vorpal.log('Your App has been successfully setup.')
 				return Promise.resolve();
 			});
