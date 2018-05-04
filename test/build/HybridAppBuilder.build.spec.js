@@ -85,7 +85,8 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it("should build artifacts for both platforms", () => {
+    //leave the function so this.timeout works
+    it("should build artifacts for both platforms", function() {
         //1.5 minutes
         this.timeout(90000);
         let testDir = testUtils.getUniqueTestDirPath();
