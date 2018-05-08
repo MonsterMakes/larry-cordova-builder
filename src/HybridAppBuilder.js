@@ -243,7 +243,7 @@ class HybridAppBuilder{
                     })
                     //install all the ruby things
                     .then(()=>{
-                        return this._cmdUtils.executeCmd("bundle update");
+                        return this._cmdUtils.spawnCmd("bundle", ["update"]);
                     });
             });
     }

@@ -1,5 +1,6 @@
 "use strict";
 const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const fileUtils = require("./FileUtils");
 
 class CmdUtils{
@@ -27,6 +28,24 @@ class CmdUtils{
                     });
                 });
             });
+    }
+    spawnCmd(cmd,args,cwd=this._cwd){
+        console.log(`Spawning cmd(${cmd}) in dir(${cwd})...`);
+        return new Promise((resolve,reject)=>{
+            //auto pipe std in/out/err to process
+            let satanSpawn = spawn(cmd,args, {stdio:'inherit',cwd: this._cwd});
+            
+            satanSpawn.on('exit', function (code) {
+                if(code){
+                    let err = new Error(`Command Failed -> ${cmd} ${args.join(" ")}`);
+                    err.exitCode = code;
+                    reject(err);
+                }
+                else{
+                    resolve();
+                }
+            });
+        });
     }
 }
 module.exports=CmdUtils;

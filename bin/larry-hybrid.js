@@ -88,7 +88,7 @@ vorpal
 				if(args.options.target) {
 					target = args.options.target;
 				}
-				return hybridAppBuilder.build('debug',target);
+				return hybridAppBuilder.build(target);
 			})
 			.then(() => {
 				vorpal.log('Your App has been successfully built.');

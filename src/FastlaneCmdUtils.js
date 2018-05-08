@@ -6,15 +6,19 @@ class FastlaneCmdUtils extends CmdUtils{
         super(cwd);
     }
     executeFastlaneCmd(platform,lane,args){
-        let cmd = lane;
+        let command = 'bundle';
+        let commandArgs = ['exec','fastlane'];
+        
         if(platform){
-            cmd = platform +' '+lane;
+            commandArgs.push(platform);
         }
+        commandArgs.push(lane);
+
         Object.keys(args).forEach(key=>{
-            cmd = cmd + " " + key +':'+args[key];
+            commandArgs.push(key +':'+args[key]);
         });
-        cmd = `bundle exec fastlane ${cmd}`;
-        return this.executeCmd(cmd);
+
+        return this.spawnCmd(command,commandArgs);
     }
 }
 module.exports=FastlaneCmdUtils;

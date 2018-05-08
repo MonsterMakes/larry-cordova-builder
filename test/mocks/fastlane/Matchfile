@@ -1,9 +1,0 @@
-git_url("https://steven-af@bitbucket.org/afrontier/af-match-certificates.git")
-
-type("development") # The default type, can be: appstore, adhoc, enterprise or development
-username("build_server@weareflagship.com") # Your Apple Developer Portal username
-
-app_identifier(["com.wonky.mobile"])
-
-# For all available options run `fastlane match --help`
-# Remove the # in the beginning of the line to enable the other options
