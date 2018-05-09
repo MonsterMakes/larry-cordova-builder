@@ -137,12 +137,8 @@ platform :ios do
     match(
       type: 'development'
     )
-    get_provisioning_profile(
-      development: true,
-      skip_install: true,
-      app_identifier: 'com.wonky.mobile',
-      readonly: true
-    )
+    #hack to make cordova action work on subsequent builds see (https://github.com/bamlab/fastlane-plugin-cordova/issues/28)
+    ENV['SIGH_UUID'] = ENV['sigh_{{appBundleId}}_development'];
     cordova(
       platform: 'ios',
       release: false,
