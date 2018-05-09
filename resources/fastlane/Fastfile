@@ -134,7 +134,15 @@ platform :ios do
   desc "Build the ios application"
   lane :build do
     UI.message "ios build()"
-    match(type: 'development')
+    match(
+      type: 'development'
+    )
+    get_provisioning_profile(
+      development: true,
+      skip_install: true,
+      app_identifier: 'com.wonky.mobile',
+      readonly: true
+    )
     cordova(
       platform: 'ios',
       release: false,
