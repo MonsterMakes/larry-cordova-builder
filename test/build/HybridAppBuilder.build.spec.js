@@ -26,7 +26,7 @@ describe(TEST_NAME, () => {
     before(()=>{
         testUtils.cleanUpWorkingDirs();
     })
-    it("should build a simple android app", () => {
+    it.skip("should build a simple android app", () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
@@ -54,7 +54,7 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it.only("should build a simple ios app", () => {
+    it.skip("should build a simple ios app", () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);

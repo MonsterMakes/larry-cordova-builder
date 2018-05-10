@@ -1,5 +1,5 @@
 module.exports=`<?xml version='1.0' encoding='utf-8'?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:tools="http://schemas.android.com/tools">
     <author email="info@auctionfrontier.com" href="https://www.auctionfrontier.com/">
         Auction Frontier
     </author>
@@ -42,7 +42,10 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     <platform name="android">
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <application android:allowBackup="false" />
+            <application android:allowBackup="false" tools:replace="android:allowBackup" />
+        </edit-config>
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest">
+            <manifest xmlns:tools="http://schemas.android.com/tools" />
         </edit-config>
         <icon density="ldpi" src="res/icon/android/ldpi.png" />
         <icon density="mdpi" src="res/icon/android/mdpi.png" />

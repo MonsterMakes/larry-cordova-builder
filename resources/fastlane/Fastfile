@@ -135,7 +135,9 @@ platform :ios do
   lane :build do
     UI.message "ios build()"
     match(
-      type: 'development'
+      type: 'development',
+      keychain_name: 'larry-hybrid-app',
+      keychain_password: 'larry4lyfe'
     )
     #hack to make cordova action work on subsequent builds see (https://github.com/bamlab/fastlane-plugin-cordova/issues/28)
     ENV['SIGH_UUID'] = ENV['sigh_{{appBundleId}}_development'];
