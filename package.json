@@ -16,7 +16,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "echo '=> Running Tests' && mocha -u tdd --timeout 1800000 --colors test/**/*.spec.js",
+    "test": "echo '=> Running Tests' && mocha -u tdd --timeout 2400000 --colors test/**/*.spec.js",
     "readiness-check": "echo '=> Checking Readiness' && npm run test",
     "prepublishOnly": "npm run readiness-check"
   },
