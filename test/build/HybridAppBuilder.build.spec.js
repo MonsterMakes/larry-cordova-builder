@@ -87,8 +87,6 @@ describe(TEST_NAME, () => {
     });
     //leave the function so this.timeout works
     it("should build artifacts for both platforms", function() {
-        //1.5 minutes
-        this.timeout(90000);
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
