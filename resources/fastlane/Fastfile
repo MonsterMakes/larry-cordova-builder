@@ -13,9 +13,11 @@
 # Uncomment the line if you want fastlane to automatically update itself
 #update_fastlane
 
-currentDir = File.expand_path("../", File.dirname(__FILE__))
+CURRENT_DIR = File.expand_path("../", File.dirname(__FILE__))
+APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
+IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
 
-UI.message "Project root is #{currentDir}"
+UI.message "Project root is #{CURRENT_DIR}"
 
 ########################################################
 #BUILD()
@@ -93,9 +95,13 @@ platform :android do
   lane :build do
     UI.message "android build()"
     cordova(
+      cordova_prepare: false,
       platform: 'android',
       release: false
     )
+    if !File.file?(APK_PATH)
+      UI.build_failure!("Failed to build APK!")
+    end
   end
   ##########
   #LAUNCH()
@@ -104,7 +110,7 @@ platform :android do
     UI.message "android launch()"
     
     adb(
-      command: "-d install -r #{currentDir}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
+      command: "-d install -r #{APK_PATH}"
     )
     adb(
       command: "shell am start -n {{appBundleId}}/.MainActivity"
@@ -144,8 +150,12 @@ platform :ios do
     cordova(
       platform: 'ios',
       release: false,
+      cordova_prepare: false,
       type: 'development'
     )
+    if !File.file?(IPA_PATH)
+      UI.build_failure!("Failed to build IPA!")
+    end
   end
   ##########
   #LAUNCH()
@@ -153,7 +163,7 @@ platform :ios do
   lane :launch do
     UI.message "ios launch()"
     install_on_device(
-      ipa: "#{currentDir}/platforms/ios/build/device/{{appName}}.ipa"
+      ipa: "#{IPA_PATH}"
     )
   end
   ##########
