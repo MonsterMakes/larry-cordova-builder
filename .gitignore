@@ -3,3 +3,5 @@ node_modules
 **/WORKING_DIRECTORY
 
 package-lock\.json
+
+\.history/
