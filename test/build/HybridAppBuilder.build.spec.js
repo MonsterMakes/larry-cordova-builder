@@ -15,10 +15,12 @@ const TEST_DIR_PREFIX = `${__dirname}/working_dir/`;
 const testUtils = new (require('../TestUtils'))(__dirname);
 
 const HybridAppBuilder = require("../../src/HybridAppBuilder");
-const _setupEmptyCordovaDir = (path)=>{
+const _setupEmptyCordovaDir = (path,noRes)=>{
     fs.copySync(pathUtils.join(__dirname,'..','mocks','node_modules'),pathUtils.join(path,'node_modules'));
 
-    fs.copySync(pathUtils.join(__dirname,'..','mocks','res'),pathUtils.join(path,'res'));
+    if(!noRes){
+        fs.copySync(pathUtils.join(__dirname,'..','mocks','res'),pathUtils.join(path,'res'));
+    }
 }
 
 const TEST_NAME = "HybridAppBuilder.build()";
@@ -67,7 +69,10 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds
+            developerCreds: devCreds,
+            mutations: {
+
+            }
         });
         return hybridAppBuilder.setupBuild()
             .then(()=>{
@@ -118,5 +123,113 @@ describe(TEST_NAME, () => {
                 }
                 return Promise.reject(e);
             });
+    });
+    it("should fail the build on android", function() {
+        let testDir = testUtils.getUniqueTestDirPath();
+        fs.mkdirsSync(testDir);
+        _setupEmptyCordovaDir(testDir);
+        let devCreds = testUtils.getDeveloperCreds();
+
+        let hybridAppBuilder = new HybridAppBuilder({
+            cwd: testDir,
+            appName: "wonky-mobile-web",
+            appVersion: "0.0.0",
+            appDescription: "Some Description",
+            webPackageName: "wonky-mobile-web",
+            appBundleId: "com.wonky.mobile",
+            developerCreds: devCreds,
+            configXmlGeneration: {
+                mutations: [{
+                    "op": "add",
+                    "path": "/widget/plugin/-",
+                    "value": {
+                        "$": {
+                            "name": "phonegap-plugin-push",
+                            "spec": "^2.2.2"
+                        },
+                        "variable": [
+                            {
+                                "$": {
+                                    "name": "ANDROID_SUPPORT_V13_VERSION",
+                                    "value": "27.+"
+                                }
+                            },
+                            {
+                                "$": {
+                                    "name": "FCM_VERSION",
+                                    "value": "11.6.2"
+                                }
+                            }
+                        ]
+                    }
+                }]
+            }
+        });
+        return hybridAppBuilder.setupBuild()
+            .then(()=>{
+                return hybridAppBuilder.build('android');
+            })
+            .then(
+                ()=>{
+                    return Promise.reject(new Error("Build should have failed"));
+                },
+                e=>{
+                    return Promise.resolve();
+                }
+            );
+    });
+    it.only("should fail the build on ios", function() {
+        let testDir = testUtils.getUniqueTestDirPath();
+        fs.mkdirsSync(testDir);
+        _setupEmptyCordovaDir(testDir,true);
+        let devCreds = testUtils.getDeveloperCreds();
+
+        let hybridAppBuilder = new HybridAppBuilder({
+            cwd: testDir,
+            appName: "wonky-mobile-web",
+            appVersion: "0.0.0",
+            appDescription: "Some Description",
+            webPackageName: "wonky-mobile-web",
+            appBundleId: "com.wonky.mobile",
+            developerCreds: devCreds,
+            configXmlGeneration: {
+                mutations: [{
+                    "op": "add",
+                    "path": "/widget/plugin/-",
+                    "value": {
+                        "$": {
+                            "name": "phonegap-plugin-push",
+                            "spec": "^2.2.2"
+                        },
+                        "variable": [
+                            {
+                                "$": {
+                                    "name": "ANDROID_SUPPORT_V13_VERSION",
+                                    "value": "27.+"
+                                }
+                            },
+                            {
+                                "$": {
+                                    "name": "FCM_VERSION",
+                                    "value": "11.6.2"
+                                }
+                            }
+                        ]
+                    }
+                }]
+            }
+        });
+        return hybridAppBuilder.setupBuild()
+            .then(()=>{
+                return hybridAppBuilder.build('ios');
+            })
+            .then(
+                ()=>{
+                    return Promise.reject(new Error("Build should have failed"));
+                },
+                e=>{
+                    return Promise.resolve();
+                }
+            );
     });
 });
