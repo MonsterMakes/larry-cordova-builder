@@ -212,8 +212,12 @@ class HybridAppBuilder{
                         catch(e){
                             console.warn("For some reason we could NOT find a default cordova version, generating app package.json using latest cordova.");
                         }
+                        let name = _.dasherize(this._appName);
+                        if(name.startsWith('@')){
+                            name = name.slice(1);
+                        }
                         let packageContents = {
-                            name: _.dasherize(this._appName).slice(1),
+                            name: name,
                             version: this._appVersion,
                             description: this._appDescription,
                             private: true,
@@ -227,21 +231,24 @@ class HybridAppBuilder{
             //capture the current contents of config.xml
             .then(()=>{
                 return this._retrieveConfigXmlContents()
-                    .then((contents)=>{
-                        configXmlOriginalContents = contents;
-                    })
-                    .catch(()=>{
-                        //not found this is ok
-                        configXmlOriginalContents = undefined;
-                    })
+                    .then(
+                        (contents)=>{
+                            return configXmlOriginalContents = contents;
+                        },
+                        ()=>{
+                            //not found this is ok
+                            configXmlOriginalContents = undefined;
+                        }
+                    )
             })
             //Initial Mutations
             .then(()=>{
+                let proms = [];
                 if(_.isArray(this._mutations.prePrepare)){
                     this._mutations.prePrepare.forEach((mutation)=>{
                         //CordovaConfigXml Mutation
                         if(_.isPlainObject(mutation) && mutation.type === 'CordovaConfigXml'){
-                            return this._generateConfigXml(mutation);
+                            proms.push(this._generateConfigXml(mutation));
                         }
                         else{
                             console.warn("An Unknown Initial Mutation was found, skipping...", mutation);
@@ -250,8 +257,9 @@ class HybridAppBuilder{
                 }
                 else{
                     console.info("No Initial Mutations found, running the default mutations...");
-                    return this._generateConfigXml();
+                    proms.push(this._generateConfigXml());
                 }
+                return Promise.all(proms);
             })
             //prepare
             .then(()=>{   

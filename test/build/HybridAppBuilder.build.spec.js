@@ -124,7 +124,7 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it.skip("should fail the build on android", function() {
+    it("should fail the build on android", function() {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
@@ -138,50 +138,27 @@ describe(TEST_NAME, () => {
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
             developerCreds: devCreds,
-            // mutations: [
-            //     {
-            //         type: "DomMutation",
-            //         src: "./config.xml",
-            //         dest: "/config.xml",
-            //         description: "add push resources"
-            //         script: [
-            //             "1",
-            //             "2"
-            //         ]
-            //     },
-            //     {
-            //         type: "fs-copy",
-            //         src: "./resources/mobile/push/google-services.json",
-            //         dest: "/google-services.json"
-            //     }
-
-            // ]
-            configXmlGeneration: {
-                mutations: [{
-                    "op": "add",
-                    "path": "/widget/plugin/-",
-                    "value": {
-                        "$": {
-                            "name": "phonegap-plugin-push",
-                            "spec": "^2.2.2"
-                        },
-                        "variable": [
+            "mutations": {
+                "prePrepare" : [
+                    {
+                        "type": "CordovaConfigXml",
+                        "scripts": [
                             {
-                                "$": {
-                                    "name": "ANDROID_SUPPORT_V13_VERSION",
-                                    "value": "27.+"
-                                }
-                            },
-                            {
-                                "$": {
-                                    "name": "FCM_VERSION",
-                                    "value": "11.6.2"
-                                }
+                                "description": "Push Notification Plugin Mutation",
+                                "script": [
+                                    "document.querySelector('widget > plugin:last-child').insertAdjacentHTML('afterend', ",
+                                        "'<plugin name=\"phonegap-plugin-push\" spec=\"^2.2.2\">",
+                                            "<value ANDROID_SUPPORT_V13_VERSION=\"27.+\"></value>",
+                                            "<value FCM_VERSION=\"11.6.2\"></value>",
+                                        "</plugin>",
+                                    "');"       
+                                ]
                             }
                         ]
                     }
-                }]
+                ]
             }
+            
         });
         return hybridAppBuilder.setupBuild()
             .then(()=>{
@@ -196,7 +173,7 @@ describe(TEST_NAME, () => {
                 }
             );
     });
-    it.skip("should fail the build on ios", function() {
+    it("should fail the build on ios", function() {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir,true);
@@ -210,31 +187,25 @@ describe(TEST_NAME, () => {
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
             developerCreds: devCreds,
-            configXmlGeneration: {
-                mutations: [{
-                    "op": "add",
-                    "path": "/widget/plugin/-",
-                    "value": {
-                        "$": {
-                            "name": "phonegap-plugin-push",
-                            "spec": "^2.2.2"
-                        },
-                        "variable": [
+            "mutations": {
+                "prePrepare" : [
+                    {
+                        "type": "CordovaConfigXml",
+                        "scripts": [
                             {
-                                "$": {
-                                    "name": "ANDROID_SUPPORT_V13_VERSION",
-                                    "value": "27.+"
-                                }
-                            },
-                            {
-                                "$": {
-                                    "name": "FCM_VERSION",
-                                    "value": "11.6.2"
-                                }
+                                "description": "Push Notification Plugin Mutation",
+                                "script": [
+                                    "document.querySelector('widget > plugin:last-child').insertAdjacentHTML('afterend', ",
+                                        "'<plugin name=\"phonegap-plugin-push\" spec=\"^2.2.2\">",
+                                            "<value ANDROID_SUPPORT_V13_VERSION=\"27.+\"></value>",
+                                            "<value FCM_VERSION=\"11.6.2\"></value>",
+                                        "</plugin>",
+                                    "');"       
+                                ]
                             }
                         ]
                     }
-                }]
+                ]
             }
         });
         return hybridAppBuilder.setupBuild()
