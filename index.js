@@ -1,5 +1,8 @@
 'use strict';
 module.exports={
-    XmlMutator: require("./src/XmlMutator"),
+    mutations: {
+        Mutator: require("./src/mutations/Mutator"),
+        DomMutator: require("./src/mutations/DomMutator")
+    },
     HybridAppBuilder: require("./src/HybridAppBuilder")
 };

@@ -1,8 +1,8 @@
 module.exports=`<?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:tools="http://schemas.android.com/tools">
     <author email="info@auctionfrontier.com" href="https://www.auctionfrontier.com/">
-        Auction Frontier
-    </author>
+            Auction Frontier
+        </author>
     <content src="index.html" />
     <allow-navigation href="*" />
     <allow-intent href="*" />

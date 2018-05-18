@@ -124,7 +124,7 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it("should fail the build on android", function() {
+    it.skip("should fail the build on android", function() {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
@@ -138,6 +138,24 @@ describe(TEST_NAME, () => {
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
             developerCreds: devCreds,
+            // mutations: [
+            //     {
+            //         type: "DomMutation",
+            //         src: "./config.xml",
+            //         dest: "/config.xml",
+            //         description: "add push resources"
+            //         script: [
+            //             "1",
+            //             "2"
+            //         ]
+            //     },
+            //     {
+            //         type: "fs-copy",
+            //         src: "./resources/mobile/push/google-services.json",
+            //         dest: "/google-services.json"
+            //     }
+
+            // ]
             configXmlGeneration: {
                 mutations: [{
                     "op": "add",
@@ -178,7 +196,7 @@ describe(TEST_NAME, () => {
                 }
             );
     });
-    it.only("should fail the build on ios", function() {
+    it.skip("should fail the build on ios", function() {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir,true);

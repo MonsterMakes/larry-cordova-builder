@@ -1,7 +1,7 @@
 {
   "name": "@monstermakes/larry-hybrid-app-builder",
   "description": "Dynamically builds a cordova hybrid application for IOS and android based previously produced set of web assets.",
-  "version": "0.3.3",
+  "version": "1.0.0",
   "bin": {
     "larry-hybrid": "./bin/larry-hybrid.js"
   },
@@ -24,6 +24,7 @@
     "cordova": "^8.0.0",
     "fast-json-patch": "^2.0.6",
     "handlebars": "^4.0.11",
+    "jsdom": "^11.10.0",
     "lodash": "^4.17.10",
     "underscore.string": "^3.3.4",
     "vorpal": "^1.12.0",
