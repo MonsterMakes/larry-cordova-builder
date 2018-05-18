@@ -7,8 +7,8 @@ const CmdUtils = require("./CmdUtils");
 const CordovaCmdUtils = require("./CordovaCmdUtils");
 const FastlaneCmdUtils = require("./FastlaneCmdUtils");
 const pathUtils = require("path");
-
-const XmlMutator = require("./XmlMutator");
+const BASE_XML = require("./BaseXmlConfig");
+const DomMutator = require("./mutations/DomMutator");
 
 class HybridAppBuilder{
     constructor(configIn={}){
@@ -31,29 +31,9 @@ class HybridAppBuilder{
         this._appVersion = _.get(cfg,'appVersion',cfg.version);
         this._appDescription = _.get(cfg,'appDescription',cfg.description);
         
-        this._mutations = _.get(cfg,"mutations",[]);
+        this._mutations = _.get(cfg,"mutations",{});
 
         this._developerCreds = _.get(cfg,'developerCreds',{ android: {}, ios: {teamId: null, iosTeamName: null, iosEmail: null, fastlaneMatchGitUrl: null}});
-        
-        //Xml Mutation settings for the config.xml file
-        this._configXmlGeneration = _.merge({},
-            {
-                baseXml: require("./BaseXmlConfig"),
-                mutations: []
-            },
-            cfg.configXmlGeneration
-        );
-
-        let seededMutations = [
-            //set the applicationName
-            (xmlObj,config)=>{
-                xmlObj.widget.name = this._appName;
-                xmlObj.widget.description = this._appDescription;
-                xmlObj.widget.$.version = this._appVersion;
-                xmlObj.widget.$.id = this._appBundleId;
-            }
-        ];
-        this._configXmlGeneration.mutations = seededMutations.concat(this._configXmlGeneration.mutations);
 
         this._validateConfiguration();
     }
@@ -103,9 +83,37 @@ class HybridAppBuilder{
             throw new Error("You must supply values for these properties in the HybridAppBuilder constructor config argument: "+errors);
         }
     }
-    _generateConfigXml(){
-        let xmlWriter = new XmlMutator(this._configXmlGeneration.baseXml,this._configXmlGeneration.mutations);
+    _retrieveConfigXmlContents(){
+        let configXmlPath = pathUtils.join(this._cwd,'config.xml');
+        return fileUtils.isFile(configXmlPath)
+            .then(()=>{
+                return fileUtils.readFileContents(configXmlPath)
+            })
+            .then((configXmlContents)=>{
+                return configXmlContents;
+            })
+    }
+    _generateConfigXml(mutation){
+        let scripts = _.get(mutation,'scripts',[]);
         
+        //Push the seeded mutation... This sets the config.xml basics name version etc...
+        scripts.push((dom,config)=>{
+            let document = dom.window.document;
+            let widget = document.querySelector('widget');
+            widget.setAttribute('version', this._appVersion);
+            widget.setAttribute('id', this._appBundleId);
+
+            let descriptionElem = document.createElement('description');
+            descriptionElem.textContent = this._appDescription;
+            
+            let nameElem = document.createElement('name');
+            nameElem.textContent = this._appName;
+            
+            widget.insertBefore(descriptionElem,widget.firstElementChild);
+            widget.insertBefore(nameElem,widget.firstElementChild);
+        });
+        let xmlWriter = new DomMutator(_.get(mutation,'baseXml',BASE_XML),scripts);
+
         return xmlWriter.build()
             .then(xml=>{
                 return fileUtils.writeContentsToFile(pathUtils.join(this._cwd,'config.xml'), xml, 0o644 & ~process.umask());
@@ -172,6 +180,7 @@ class HybridAppBuilder{
         let platformsDir = pathUtils.join(this._cwd,'platforms');
         let pluginsDir = pathUtils.join(this._cwd,'plugins');
         let packageJsonFile = pathUtils.join(this._cwd,'package.json');
+        let configXmlOriginalContents = undefined;
 
         return fileUtils.isDirectory(wwwDir)
             //symlink www
@@ -185,14 +194,6 @@ class HybridAppBuilder{
                         }
                         let cmd = `ln -s ${packageLocation} www`;
                         return this._cmdUtils.executeCmd(cmd,this._cwd);
-                    });
-            })
-            //generate xml
-            .then(()=>{
-                return fileUtils.isFile(pathUtils.join(this._cwd,'config.xml'))
-                    //if there is no config.xml generate one
-                    .catch(()=>{
-                        return this._generateConfigXml();
                     });
             })
             //create package.json if one does not exist
@@ -223,17 +224,47 @@ class HybridAppBuilder{
                         return fileUtils.writeContentsToFile(packageJsonFile, JSON.stringify(packageContents,null,'\t'), 0o644 & ~process.umask());
                     });
             })
-            //prepare
-            .then(()=>{    
-                return fileUtils.isDirectory(platformsDir)
-                    //plugins are optional therefore you may not have a plugins directory
-                    // .then(()=>{    
-                    //     return fileUtils.isDirectory(pluginsDir)
-                    // })
-                    //platforms or plugins does not exist symlink it
-                    .catch(()=>{
-                        return this._cordovaCmdUtils.prepareCordovaProject();
+            //capture the current contents of config.xml
+            .then(()=>{
+                return this._retrieveConfigXmlContents()
+                    .then((contents)=>{
+                        configXmlOriginalContents = contents;
                     })
+                    .catch(()=>{
+                        //not found this is ok
+                        configXmlOriginalContents = undefined;
+                    })
+            })
+            //Initial Mutations
+            .then(()=>{
+                if(_.isArray(this._mutations.prePrepare)){
+                    this._mutations.prePrepare.forEach((mutation)=>{
+                        //CordovaConfigXml Mutation
+                        if(_.isPlainObject(mutation) && mutation.type === 'CordovaConfigXml'){
+                            return this._generateConfigXml(mutation);
+                        }
+                        else{
+                            console.warn("An Unknown Initial Mutation was found, skipping...", mutation);
+                        }
+                    });
+                }
+                else{
+                    console.info("No Initial Mutations found, running the default mutations...");
+                    return this._generateConfigXml();
+                }
+            })
+            //prepare
+            .then(()=>{   
+                return this._retrieveConfigXmlContents()
+                    .then((contents)=>{
+                        if(configXmlOriginalContents !== contents){
+                            console.info("Detected Changes in config.xml runnning cordova prepare...");
+                            return this._cordovaCmdUtils.prepareCordovaProject();
+                        }
+                        else{
+                            console.info("No Changes found in config.xml skipping cordova prepare...");
+                        }
+                    }); 
             })
             //setup fastlane assets
             .then(()=>{
