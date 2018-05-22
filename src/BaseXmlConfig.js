@@ -61,7 +61,6 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     </platform>
     <engine name="android" spec="^7.0.0" />
     <platform name="android">
-        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:allowBackup="false" tools:replace="android:allowBackup" />
         </edit-config>
@@ -90,5 +89,6 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.3" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
 </widget>
 `;

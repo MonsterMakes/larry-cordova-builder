@@ -5,7 +5,7 @@ const vorpal = require('vorpal')();
 const _ = require("lodash");
 const pathUtils = require("path");
 
-function setupCordova(args) {
+function initializeHybridAppBuilder(args) {
 	return new Promise(function(resolve, reject) {
 		let config = {};
 
@@ -37,39 +37,53 @@ function setupCordova(args) {
 		vorpal.log('Using this configuration:\n'+JSON.stringify(config,null,'\t'));
 		let hybridAppBuilder = new HybridAppBuilder(config);
 		
-		hybridAppBuilder.setupBuild()
-			.then(() => {
-				resolve(hybridAppBuilder);
-			})
-			.catch(reject);
+		resolve(hybridAppBuilder);
 	});
 }
 
 vorpal
-	.command('launch-android', 'Will launch your hybrid app on an android device.')
+	.command('release', 'Will release your hybrid app, this includes signing.')
+	.option('--target <target>', 'The target platform to be built.')
 	.option('--config <config>', 'Path to the json file to configure the build.')
 	.option('--cwd <cwd>', 'The working directory to use instead of the current directory.')
 	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
-		return setupCordova(args)
+		return initializeHybridAppBuilder(args)
 			.then((hybridAppBuilder) => {
-				return hybridAppBuilder.launch('android');
+				let target = 'all';
+				if(args.options.target) {
+					target = args.options.target;
+				}
+				return hybridAppBuilder.release(target);
 			});
 	});
 
 vorpal
-	.command('launch-ios', 'Will launch your hybrid app on an android device.')
+	.command('launch', 'Will launch your hybrid app on a device.')
+	.option('--target <target>', 'The target platform to be built.')
 	.option('--config <config>', 'Path to the json file to configure the build.')
 	.option('--cwd <cwd>', 'The working directory to use instead of the current directory.')
 	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
-		return setupCordova(args)
+		let target = undefined;
+		return Promise.resolve()
+			.then(()=>{
+				if(args.options.target) {
+					target = args.options.target;
+				}
+				else{
+					return Promise.reject(new Error("You must supply a target (ios, android) to the launch command!"))
+				}
+			})
+			.then(()=>{
+				return initializeHybridAppBuilder(args);
+			})
 			.then((hybridAppBuilder) => {
-				return hybridAppBuilder.launch('ios');
+				return hybridAppBuilder.launch(target);
 			});
 	});
 
@@ -82,8 +96,15 @@ vorpal
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
-		return setupCordova(args)
-			.then((hybridAppBuilder) => {
+		let hybridAppBuilder;
+		return initializeHybridAppBuilder(args)
+			.then((appBuilder) => {
+				hybridAppBuilder = appBuilder;
+			})
+			.then(() => {
+				return hybridAppBuilder.setupBuild(true);
+			})
+			.then(() => {
 				let target = 'all';
 				if(args.options.target) {
 					target = args.options.target;
@@ -104,8 +125,15 @@ vorpal
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
-		return setupCordova(args)
-			.then((hybridAppBuilder) => {
+		let hybridAppBuilder;
+		return initializeHybridAppBuilder(args)
+			.then((appBuilder) => {
+				hybridAppBuilder = appBuilder;
+			})
+			.then(() => {
+				return hybridAppBuilder.setupBuild();
+			})
+			.then(()=>{
 				vorpal.log('Your App has been successfully setup.')
 				return Promise.resolve();
 			});

@@ -1,6 +1,6 @@
-git_url("{{fastlaneMatchGitUrl}}")
+git_url("{{credentials.ios.fastlaneMatchGitUrl}}")
 
-username("{{iosEmail}}") # Your Apple Developer Portal username
+username("{{credentials.ios.email}}") # Your Apple Developer Portal username
 
 app_identifier(["{{appBundleId}}"])
 
