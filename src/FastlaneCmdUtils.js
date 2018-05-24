@@ -15,7 +15,9 @@ class FastlaneCmdUtils extends CmdUtils{
         commandArgs.push(lane);
 
         Object.keys(args).forEach(key=>{
-            commandArgs.push(key +':'+args[key]);
+            if(args[key]){
+                commandArgs.push(key +':'+args[key]);
+            }
         });
 
         return this.spawnCmd(command,commandArgs);

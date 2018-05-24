@@ -13,9 +13,29 @@
 # Uncomment the line if you want fastlane to automatically update itself
 #update_fastlane
 
+KEYCHAIN_NAME = "larry-hybrid-app"
+KEYCHAIN_PATH = "#{ENV["HOME"]}/Library/Keychains/#{KEYCHAIN_NAME}.keychain-db"
+KEYCHAIN_PASSWORD = "larry4lyfe"
+
 CURRENT_DIR = File.expand_path("../", File.dirname(__FILE__))
+
+IOS_PROJECT_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcodeproj"
+
+#Produced Build Assets
 APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
 IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
+XCARCHIVE_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcarchive"
+
+RELEASE_DIR = "#{CURRENT_DIR}/_RELEASE_";
+
+DEBUG_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.apk"
+DEBUG_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.ipa"
+
+#Produced Release Assets
+RELEASED_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.xcarchive"
+RELEASED_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.apk"
+RELEASED_IPA_NAME = "{{appName}}-{{appVersion}}.ipa"
+RELEASED_IPA_PATH = "#{RELEASE_DIR}/#{RELEASED_IPA_NAME}"
 
 UI.message "Project root is #{CURRENT_DIR}"
 
@@ -95,12 +115,13 @@ platform :android do
   lane :build do
     UI.message "android build()"
     cordova(
-      cordova_prepare: false,
       platform: 'android',
       release: false
     )
     if !File.file?(APK_PATH)
       UI.build_failure!("Failed to build APK!")
+    else
+      FileUtils.cp(APK_PATH,DEBUG_APK_PATH)
     end
   end
   ##########
@@ -121,12 +142,34 @@ platform :android do
   ##########
   lane :release do
     UI.message "android release()"
+
+    #sign the APK
+    sh "apksigner", 
+      "sign", 
+      "--v2-signing-enabled",
+      "--ks", "{{credentials.android.keystore}}", 
+      "--ks-key-alias", "{{credentials.android.alias}}", 
+      "--ks-pass", "pass:{{credentials.android.keystorePass}}", 
+      "--key-pass", "pass:{{credentials.android.keyPass}}",
+      "--out", "#{RELEASED_APK_PATH}", 
+      APK_PATH
+
+    #Verify the signed APK
+    sh "apksigner", 
+      "verify",
+      "-v",
+      RELEASED_APK_PATH
+
+    UI.success "Signed APK released!!! (#{RELEASED_APK_PATH})"
   end
   ##########
   #SUBMIT()
   ##########
   lane :submit do
     UI.message "android submit()"
+    supply(
+      apk: RELEASED_APK_PATH
+    )
   end
 end
 ########################################################
@@ -134,27 +177,71 @@ end
 #START PLATFORM ios
 ########################################################
 platform :ios do
+  #Private lane to unlock the keychain
+  private_lane :setupKeychain do
+    if !File.exists?(KEYCHAIN_PATH)
+      create_keychain(
+        password: KEYCHAIN_PASSWORD,
+        path: KEYCHAIN_PATH,
+        default_keychain: false,
+        timeout: 3600,
+        lock_when_sleeps: true
+      )
+    end
+    
+    unlock_keychain( 
+      path: KEYCHAIN_PATH,
+      password: KEYCHAIN_PASSWORD
+    )
+  end
+  #install the provisioningProfile and return its uuid
+  private_lane :setupProvisioningProfile do |options|
+    UI.message "*** Setting up provisioningProfile (#{options[:provisioningProfile]})..."
+
+    cmd = "grep UUID -A1 -a \"#{options[:provisioningProfile]}\" | grep -io \"[-A-F0-9]\\{36\\}\""
+      
+    #remove the trailing newline character
+    provisioningProfileUuid = `#{cmd}`.strip
+
+    dest = "#{ENV["HOME"]}/Library/MobileDevice/Provisioning Profiles/#{provisioningProfileUuid}.mobileprovision"
+    if (dest != options[:provisioningProfile])
+      UI.message "*** Installing provisioningProfile (#{provisioningProfileUuid})..."
+
+      FileUtils.cp_r(options[:provisioningProfile],dest, :remove_destination => true, :preserve => false)
+    end
+    
+    provisioningProfileUuid
+  end
   ##########
   #BUILD()
   ##########
   desc "Build the ios application"
-  lane :build do
+  lane :build do | options |
     UI.message "ios build()"
-    match(
-      type: 'development',
-      keychain_name: 'larry-hybrid-app',
-      keychain_password: 'larry4lyfe'
-    )
-    #hack to make cordova action work on subsequent builds see (https://github.com/bamlab/fastlane-plugin-cordova/issues/28)
-    ENV['SIGH_UUID'] = ENV['sigh_{{appBundleId}}_development'];
+  
+    if (options[:developmentProvisioningProfile])
+      provisioningProfileUuid = setupProvisioningProfile(:provisioningProfile => options[:developmentProvisioningProfile])
+    else
+      setupKeychain()
+      match(
+        type: 'development',
+        keychain_name: KEYCHAIN_NAME,
+        keychain_password: KEYCHAIN_PASSWORD
+      )
+      provisioningProfileUuid = ENV['sigh_{{appBundleId}}_development']
+    end
     cordova(
       platform: 'ios',
+      provisioning_profile: provisioningProfileUuid,
       release: false,
-      cordova_prepare: false,
       type: 'development'
     )
+
     if !File.file?(IPA_PATH)
       UI.build_failure!("Failed to build IPA!")
+    else
+      FileUtils.cp_r(XCARCHIVE_PATH,RELEASED_XCARCHIVE_PATH, :remove_destination => true)
+      FileUtils.cp(IPA_PATH,DEBUG_IPA_PATH)
     end
   end
   ##########
@@ -169,14 +256,51 @@ platform :ios do
   ##########
   #RELEASE()
   ##########
-  lane :release do
+  lane :release do | options |
     UI.message "ios release()"
+
+    #if someone has specified signing info
+    if (options[:appStoreProvisioningProfile] && options[:signingIdentity])
+        provisioningProfileUuid = setupProvisioningProfile(:provisioningProfile => options[:appStoreProvisioningProfile])
+
+      gym(
+        project: IOS_PROJECT_PATH,
+        skip_build_archive: true,
+        archive_path: XCARCHIVE_PATH,
+        output_directory: RELEASE_DIR,
+        output_name: RELEASED_IPA_NAME,
+        codesigning_identity: options[:signingIdentity],
+        export_options: {
+          "provisioningProfiles": {
+            "{{appBundleId}}": "#{provisioningProfileUuid}"
+          },
+          "method": "app-store",
+          "signingStyle": "manual"
+        }
+      )
+    else
+      match(
+        type: 'appstore',
+        keychain_name: KEYCHAIN_NAME,
+        keychain_password: KEYCHAIN_PASSWORD
+      )
+      gym(
+        project: IOS_PROJECT_PATH,
+        skip_build_archive: true,
+        archive_path: XCARCHIVE_PATH,
+        output_directory: RELEASE_DIR,
+        output_name: RELEASED_IPA_NAME
+      )
+    end
   end
   ##########
   #SUBMIT()
   ##########
   lane :submit do
     UI.message "ios submit()"
+    pilot(
+      ipa: RELEASED_IPA_PATH
+    )
   end
 end
 ########################################################

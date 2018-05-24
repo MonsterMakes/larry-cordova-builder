@@ -32,7 +32,7 @@ describe(TEST_NAME, () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
-        let devCreds = testUtils.getDeveloperCreds();
+        let devCreds = testUtils.getBuildCredentials();
         
         let hybridAppBuilder = new HybridAppBuilder({
             cwd: testDir,
@@ -41,7 +41,7 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds
+            credentials: devCreds
         });
         return hybridAppBuilder.setupBuild()
             .then(()=>{
@@ -56,11 +56,11 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it.skip("should build a simple ios app", () => {
+    it.only("should build a simple ios app", () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
-        let devCreds = testUtils.getDeveloperCreds();
+        let devCreds = testUtils.getBuildCredentials();
 
         let hybridAppBuilder = new HybridAppBuilder({
             cwd: testDir,
@@ -69,7 +69,7 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds,
+            credentials: devCreds,
             mutations: {
 
             }
@@ -95,7 +95,7 @@ describe(TEST_NAME, () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
-        let devCreds = testUtils.getDeveloperCreds();
+        let devCreds = testUtils.getBuildCredentials();
 
         let hybridAppBuilder = new HybridAppBuilder({
             cwd: testDir,
@@ -104,7 +104,7 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds
+            credentials: devCreds
         });
         return hybridAppBuilder.setupBuild()
             .then(()=>{
@@ -128,7 +128,7 @@ describe(TEST_NAME, () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
-        let devCreds = testUtils.getDeveloperCreds();
+        let devCreds = testUtils.getBuildCredentials();
 
         let hybridAppBuilder = new HybridAppBuilder({
             cwd: testDir,
@@ -137,7 +137,7 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds,
+            credentials: devCreds,
             "mutations": {
                 "prePrepare" : [
                     {
@@ -177,7 +177,7 @@ describe(TEST_NAME, () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir,true);
-        let devCreds = testUtils.getDeveloperCreds();
+        let devCreds = testUtils.getBuildCredentials();
 
         let hybridAppBuilder = new HybridAppBuilder({
             cwd: testDir,
@@ -186,7 +186,7 @@ describe(TEST_NAME, () => {
             appDescription: "Some Description",
             webPackageName: "wonky-mobile-web",
             appBundleId: "com.wonky.mobile",
-            developerCreds: devCreds,
+            credentials: devCreds,
             "mutations": {
                 "prePrepare" : [
                     {

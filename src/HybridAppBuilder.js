@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const underscoreString = require("underscore.string");
 _.mixin(underscoreString.exports());
+const EnvironmentVariablesLoader = require("./EnvironmentLoader");
 const fileUtils = require("./FileUtils");
 const CmdUtils = require("./CmdUtils");
 const CordovaCmdUtils = require("./CordovaCmdUtils");
@@ -27,13 +28,16 @@ class HybridAppBuilder{
 
         this._appBundleId = cfg.appBundleId;
 
-        this._appName = _.get(cfg,'appName',_.titleize(_.humanize(cfg.name)));
+        this._appName = _.get(cfg,'appName',cfg.name);
         this._appVersion = _.get(cfg,'appVersion',cfg.version);
         this._appDescription = _.get(cfg,'appDescription',cfg.description);
         
         this._mutations = _.get(cfg,"mutations",{});
 
-        this._developerCreds = _.get(cfg,'developerCreds',{ android: {}, ios: {teamId: null, iosTeamName: null, iosEmail: null, fastlaneMatchGitUrl: null}});
+        //credentials
+        let credentialsFromEnv = EnvironmentVariablesLoader.getCredentials();
+        let credentials = _.get(cfg,'credentials',{});
+        this._credentials = _.merge(credentialsFromEnv,credentials);
 
         this._validateConfiguration();
     }
@@ -126,10 +130,7 @@ class HybridAppBuilder{
             appName: this._appName,
             appVersion: this._appVersion,
             appDescription: this._appDescription,
-            iosTeamId: this._developerCreds.ios.teamId,
-            iosEmail: this._developerCreds.ios.iosEmail,
-            iosTeamName: this._developerCreds.ios.iosTeamName,
-            fastlaneMatchGitUrl: this._developerCreds.ios.fastlaneMatchGitUrl
+            credentials: this._credentials
         };
         let assetsToMove = [
             "fastlane/Fastfile",
@@ -175,7 +176,7 @@ class HybridAppBuilder{
     /**
      * Will make sure your project is properly setup to run the build.
      */
-    setupBuild(){
+    setupBuild(skipPrepare=false){
         let wwwDir = pathUtils.join(this._cwd,'www');
         let platformsDir = pathUtils.join(this._cwd,'platforms');
         let pluginsDir = pathUtils.join(this._cwd,'plugins');
@@ -192,6 +193,9 @@ class HybridAppBuilder{
                         if(this._webPackageLocation){
                             packageLocation = this._webPackageLocation;
                         }
+                        console.info("");
+                        console.info(`*** Symoblically linking www directory to ${packageLocation}...`);
+                        
                         let cmd = `ln -s ${packageLocation} www`;
                         return this._cmdUtils.executeCmd(cmd,this._cwd);
                     });
@@ -203,6 +207,9 @@ class HybridAppBuilder{
                         return fileUtils.isFile(packageJsonFile)
                     })
                     .catch(()=>{
+                        console.info("");
+                        console.info(`*** No package.json found, generating one...`);
+                        
                         let cordovaVersion = "*";
                         let larryHybridBuilderPkgLocation = pathUtils.join(__dirname,'..','package.json');
                         try{
@@ -243,6 +250,9 @@ class HybridAppBuilder{
             })
             //Initial Mutations
             .then(()=>{
+                console.info("");
+                console.info(`*** Executing mutations...`);
+
                 let proms = [];
                 if(_.isArray(this._mutations.prePrepare)){
                     this._mutations.prePrepare.forEach((mutation)=>{
@@ -263,20 +273,30 @@ class HybridAppBuilder{
             })
             //prepare
             .then(()=>{   
-                return this._retrieveConfigXmlContents()
-                    .then((contents)=>{
-                        if(configXmlOriginalContents !== contents){
-                            console.info("Detected Changes in config.xml runnning cordova prepare...");
-                            return this._cordovaCmdUtils.prepareCordovaProject();
-                        }
-                        else{
-                            console.info("No Changes found in config.xml skipping cordova prepare...");
-                        }
-                    }); 
+                if(!skipPrepare){
+                    return this._retrieveConfigXmlContents()
+                        .then((contents)=>{
+                            if(configXmlOriginalContents !== contents){
+                                console.info("");
+                                console.info("*** Detected Changes in config.xml runnning cordova prepare...");
+                                
+                                return this._cordovaCmdUtils.prepareCordovaProject();
+                            }
+                            else{
+                                console.info("No Changes found in config.xml skipping cordova prepare...");
+                            }
+                        }); 
+                }
             })
             //setup fastlane assets
             .then(()=>{
+                console.info("");
+                console.info("*** Installing fastlane assets...");
+                
                 return Promise.resolve()
+                    .then(()=>{
+                        return fileUtils.ensureDirectory(pathUtils.join(this._cwd,'_RELEASE_'));
+                    })
                     .then(()=>{
                         return this._generateFastlaneAssets();
                     })
@@ -288,7 +308,10 @@ class HybridAppBuilder{
     }
     build(targetPlatform='all'){
         this._validateTargetPlatform(targetPlatform);
-        return this._fastlaneCmdUtils.executeFastlaneCmd(null,'build',{targetPlatform});
+        return this._fastlaneCmdUtils.executeFastlaneCmd(null,'build',{
+            targetPlatform: targetPlatform,
+            developmentProvisioningProfile: this._credentials.ios.developmentProvisioningProfile,
+        });
     }
     launch(targetPlatform='all'){
         this._validateTargetPlatform(targetPlatform);
@@ -296,7 +319,11 @@ class HybridAppBuilder{
     }
     release(targetPlatform='all'){
         this._validateTargetPlatform(targetPlatform);
-        return this._fastlaneCmdUtils.executeFastlaneCmd(null,'release',{targetPlatform});
+        return this._fastlaneCmdUtils.executeFastlaneCmd(null,'release',{
+            targetPlatform: targetPlatform,
+            signingIdentity: this._credentials.ios.signingIdentity,
+            appStoreProvisioningProfile: this._credentials.ios.appStoreProvisioningProfile
+        });
     }
     submit(targetPlatform='all'){
         this._validateTargetPlatform(targetPlatform);

@@ -1,8 +1,8 @@
-# app_identifier("com.wonky.mobile") # The bundle identifier of your app
-apple_id("{{iosEmail}}") # Your Apple email address
+app_identifier("{{appBundleId}}") # The bundle identifier of your app
+apple_id("{{credentials.ios.email}}") # Your Apple email address
 
-team_name "{{iosTeamName}}"
-team_id "{{iosTeamId}}"
+team_name "{{credentials.ios.teamName}}"
+team_id "{{credentials.ios.teamId}}"
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile
