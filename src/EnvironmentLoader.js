@@ -21,7 +21,6 @@ class EnvLoader{
                 teamName: null, 
                 email: null, 
                 fastlaneMatchGitUrl: null,
-                signingIdentity: null,
                 appStoreProvisioningProfile: null,
                 developmentProvisioningProfile: null
             } 
@@ -33,7 +32,6 @@ class EnvLoader{
         let alias = process.env.ANDROID_KEYSTORE_ALIAS;
         let keyPass = process.env.ANDROID_KEY_PASS;
         let keystorePass = process.env.ANDROID_KEYSTORE_PASS;
-        let signingIdentity = process.env.IOS_SIGNING_IDENTITY;
         let appStoreProvisioningProfile = process.env.IOS_APPSTORE_PROVISIONING_PROFILE;
 
         return {
@@ -44,7 +42,6 @@ class EnvLoader{
                 keystorePass
             },
             ios: {
-                signingIdentity,
                 appStoreProvisioningProfile
             }
         };

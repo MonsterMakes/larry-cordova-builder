@@ -110,18 +110,29 @@ class DomMutator extends Mutator{
     _executeDomManipulations(scriptIn){
         return Promise.resolve()
             .then(()=>{
-                let script = this._normalizeScript(scriptIn);
-                vm.runInNewContext(script, this._document.window);
+                try{
+                    let script = this._normalizeScript(scriptIn);
+                    vm.runInNewContext(script, this._document.window);
+                }
+                catch(e){
+                    return Promise.reject(e);
+                }
             });
     }
+    //private method for testing purposes
     _runScriptAgainstXmlDocument(document,scriptIn){
         let script = this._normalizeScript(scriptIn);
 
         const dom = new JsDom(document,{
             contentType: "text/xml"
         });
-                          
-        vm.runInNewContext(script, dom.window);
+        try{               
+            vm.runInNewContext(script, dom.window);
+        }
+        catch(e){
+            console.log(e);
+            return Promise.reject(e);
+        }
 
         let output = dom.serialize();
         return this._normalizeXml(output)

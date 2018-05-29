@@ -37,9 +37,6 @@ These environment variables are used for the signing process
 - "IOS_TEAM_NAME": The name of your ios developer team
 - "IOS_EMAIL": The email associated with your ios devloper account
 - "FASTLANE_MATCH_GIT_URL": The url to the match git repo to be used for credentials, see https://docs.fastlane.tools/actions/match/ for more details.
-- "IOS_SIGNING_IDENTITY": The signing identity to use during the release process, will default to whats found in match if not specified. 
-    - example: `iPhone Distribution: Luka Mirosevic (0123456789)`
-    - This certificate must be installed into the `larry-hybrid-app` keychain
 - "IOS_DEVELOPMENT_PROVISIONING_PROFILE": The signing identity to use during the build process, will default to whats found in match if not specified.
     - This provisioning profile will be installed on the local machine during the release process
 - "IOS_APPSTORE_PROVISIONING_PROFILE": The signing identity to use during the release process, will default to whats found in match if not specified.
@@ -56,7 +53,6 @@ export IOS_TEAM_ID="REPLACE_ME"
 export IOS_TEAM_NAME="REPLACE_ME"
 export IOS_EMAIL="REPLACE_ME"
 export FASTLANE_MATCH_GIT_URL="REPLACE_ME"
-ecport IOS_SIGNING_IDENTITY="REPLACE_ME"
 export IOS_DEVELOPMENT_PROVISIONING_PROFILE="REPLACE_ME"
 export IOS_APPSTORE_PROVISIONING_PROFILE="REPLACE_ME"
 ```
@@ -87,7 +83,6 @@ Some tests will actually use xcodebuild to produce the ipa, or sign the build so
         "IOS_TEAM_NAME": "<ios developer team name>",
         "IOS_EMAIL": "<ios developer email>",
         "FASTLANE_MATCH_GIT_URL": "<url to the match git repo>",
-        "IOS_SIGNING_IDENTITY": "<signing identity to use instead of Fastlane match>",
         "IOS_PROVISIONING_PROFILE": "<provisioning profile to use instead of Fastlane match>",
         "ANDROID_KEYSTORE": "<Path to the java keystore file>",
         "ANDROID_KEYSTORE_ALIAS": "<alias of the certificate in the java keystore file>",
@@ -110,10 +105,11 @@ Initial support including:
     - generate the splashscreens and cut icons
 3. Add named mutations
     - larry core injectables???
-4. Add code signing and release capabilities
 5. Build out other Mutators...
     - Currently we have Cordova config.xml mutator
     - Would like to Expose a list of generic mutators
         - File mutators
         - XML mutators
         - json mutators
+6. jsdom 11.11.0 was not backwards compatible to 11.10.0
+    - not sure what changed... should check in the future for fixes

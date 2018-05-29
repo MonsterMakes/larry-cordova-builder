@@ -321,7 +321,6 @@ class HybridAppBuilder{
         this._validateTargetPlatform(targetPlatform);
         return this._fastlaneCmdUtils.executeFastlaneCmd(null,'release',{
             targetPlatform: targetPlatform,
-            signingIdentity: this._credentials.ios.signingIdentity,
             appStoreProvisioningProfile: this._credentials.ios.appStoreProvisioningProfile
         });
     }
