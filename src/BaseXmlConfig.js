@@ -13,7 +13,7 @@ module.exports=`<?xml version='1.0' encoding='utf-8'?>
     <preference name="Orientation" value="portrait" />
     <preference name="SplashScreen" value="screen" />
     <preference name="AutoHideSplashScreen" value="false" />
-    <preference name="SplashScreenSpinnerColor" value="white" />
+    <preference name="ShowSplashScreenSpinner" value="false"/>
     <preference name="TopActivityIndicator" value="white" />
     <engine name="ios" spec="^4.5.4" />
     <platform name="ios">

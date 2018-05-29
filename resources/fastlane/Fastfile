@@ -22,22 +22,23 @@ CURRENT_DIR = File.expand_path("../", File.dirname(__FILE__))
 IOS_PROJECT_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcodeproj"
 
 #Produced Build Assets
-APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
-IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
-XCARCHIVE_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcarchive"
+CORDOVA_DEBUG_APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
+CORDOVA_RELEASE_APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/release/app-release.apk"
+CORDOVA_DEBUG_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
+CORDOVA_RELEASE_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
+CORDOVA_XCARCHIVE_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcarchive"
 
 RELEASE_DIR = "#{CURRENT_DIR}/_RELEASE_";
 
-DEBUG_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.apk"
-DEBUG_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.ipa"
-
 #Produced Release Assets
+RELEASED_DEBUG_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.xcarchive"
 RELEASED_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.xcarchive"
+RELEASED_DEBUG_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.apk"
 RELEASED_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.apk"
-RELEASED_IPA_NAME = "{{appName}}-{{appVersion}}.ipa"
-RELEASED_IPA_PATH = "#{RELEASE_DIR}/#{RELEASED_IPA_NAME}"
+RELEASED_DEBUG_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.ipa"
+RELEASED_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.ipa"
 
-UI.message "Project root is #{CURRENT_DIR}"
+UI.message "*** Project root is #{CURRENT_DIR}"
 
 ########################################################
 #BUILD()
@@ -113,25 +114,22 @@ platform :android do
   ##########
   desc "Build the android application."
   lane :build do
-    UI.message "android build()"
     cordova(
       platform: 'android',
       release: false
     )
-    if !File.file?(APK_PATH)
-      UI.build_failure!("Failed to build APK!")
+    if !File.file?(CORDOVA_DEBUG_APK_PATH)
+      UI.build_failure!("Failed to build DEBUG APK!")
     else
-      FileUtils.cp(APK_PATH,DEBUG_APK_PATH)
+      FileUtils.cp(CORDOVA_DEBUG_APK_PATH,RELEASED_DEBUG_APK_PATH)
     end
   end
   ##########
   #LAUNCH()
   ##########
   lane :launch do
-    UI.message "android launch()"
-    
     adb(
-      command: "-d install -r #{APK_PATH}"
+      command: "-d install -r \"#{RELEASED_DEBUG_APK_PATH}\""
     )
     adb(
       command: "shell am start -n {{appBundleId}}/.MainActivity"
@@ -141,32 +139,27 @@ platform :android do
   #RELEASE()
   ##########
   lane :release do
-    UI.message "android release()"
+    cordova(
+      platform: 'android',
+      release: true,
+      keystore_path: "{{credentials.android.keystore}}", 
+      keystore_alias: "{{credentials.android.alias}}", 
+      keystore_password: "{{credentials.android.keystorePass}}", 
+      key_password: "{{credentials.android.keyPass}}"
+    )
 
-    #sign the APK
-    sh "apksigner", 
-      "sign", 
-      "--v2-signing-enabled",
-      "--ks", "{{credentials.android.keystore}}", 
-      "--ks-key-alias", "{{credentials.android.alias}}", 
-      "--ks-pass", "pass:{{credentials.android.keystorePass}}", 
-      "--key-pass", "pass:{{credentials.android.keyPass}}",
-      "--out", "#{RELEASED_APK_PATH}", 
-      APK_PATH
+    if !File.file?(CORDOVA_RELEASE_APK_PATH)
+      UI.build_failure!("Failed to build APK!")
+    else
+      FileUtils.cp(CORDOVA_RELEASE_APK_PATH,RELEASED_APK_PATH)
+    end
 
-    #Verify the signed APK
-    sh "apksigner", 
-      "verify",
-      "-v",
-      RELEASED_APK_PATH
-
-    UI.success "Signed APK released!!! (#{RELEASED_APK_PATH})"
+    UI.success "*** Signed APK released!!! (#{RELEASED_APK_PATH})"
   end
   ##########
   #SUBMIT()
   ##########
   lane :submit do
-    UI.message "android submit()"
     supply(
       apk: RELEASED_APK_PATH
     )
@@ -217,8 +210,6 @@ platform :ios do
   ##########
   desc "Build the ios application"
   lane :build do | options |
-    UI.message "ios build()"
-  
     if (options[:developmentProvisioningProfile])
       provisioningProfileUuid = setupProvisioningProfile(:provisioningProfile => options[:developmentProvisioningProfile])
     else
@@ -237,67 +228,54 @@ platform :ios do
       type: 'development'
     )
 
-    if !File.file?(IPA_PATH)
-      UI.build_failure!("Failed to build IPA!")
+    if !File.file?(CORDOVA_DEBUG_IPA_PATH) && !File.file?(CORDOVA_XCARCHIVE_PATH)
+      UI.build_failure!("Failed to build DEBUG IPA!")
     else
-      FileUtils.cp_r(XCARCHIVE_PATH,RELEASED_XCARCHIVE_PATH, :remove_destination => true)
-      FileUtils.cp(IPA_PATH,DEBUG_IPA_PATH)
+      FileUtils.cp_r(CORDOVA_XCARCHIVE_PATH,RELEASED_DEBUG_XCARCHIVE_PATH, :remove_destination => true)
+      FileUtils.cp(CORDOVA_DEBUG_IPA_PATH,RELEASED_DEBUG_IPA_PATH)
     end
   end
   ##########
   #LAUNCH()
   ##########
   lane :launch do
-    UI.message "ios launch()"
     install_on_device(
-      ipa: "#{IPA_PATH}"
+      ipa: "#{CORDOVA_DEBUG_IPA_PATH}"
     )
   end
   ##########
   #RELEASE()
   ##########
   lane :release do | options |
-    UI.message "ios release()"
-
     #if someone has specified signing info
     if (options[:appStoreProvisioningProfile] && options[:signingIdentity])
         provisioningProfileUuid = setupProvisioningProfile(:provisioningProfile => options[:appStoreProvisioningProfile])
-
-      gym(
-        project: IOS_PROJECT_PATH,
-        skip_build_archive: true,
-        archive_path: XCARCHIVE_PATH,
-        output_directory: RELEASE_DIR,
-        output_name: RELEASED_IPA_NAME,
-        codesigning_identity: options[:signingIdentity],
-        export_options: {
-          "provisioningProfiles": {
-            "{{appBundleId}}": "#{provisioningProfileUuid}"
-          },
-          "method": "app-store",
-          "signingStyle": "manual"
-        }
-      )
     else
+      setupKeychain()
       match(
         type: 'appstore',
         keychain_name: KEYCHAIN_NAME,
         keychain_password: KEYCHAIN_PASSWORD
       )
-      gym(
-        project: IOS_PROJECT_PATH,
-        skip_build_archive: true,
-        archive_path: XCARCHIVE_PATH,
-        output_directory: RELEASE_DIR,
-        output_name: RELEASED_IPA_NAME
-      )
+      provisioningProfileUuid = ENV['sigh_{{appBundleId}}_development']
+    end
+    cordova(
+      platform: 'ios',
+      provisioning_profile: provisioningProfileUuid,
+      release: true,
+      type: 'appstore',
+    )
+    if !File.file?(CORDOVA_DEBUG_IPA_PATH) && !File.file?(CORDOVA_XCARCHIVE_PATH)
+      UI.build_failure!("Failed to build IPA!")
+    else
+      FileUtils.cp_r(CORDOVA_XCARCHIVE_PATH,RELEASED_XCARCHIVE_PATH, :remove_destination => true)
+      FileUtils.cp(CORDOVA_DEBUG_IPA_PATH,RELEASED_IPA_PATH)
     end
   end
   ##########
   #SUBMIT()
   ##########
   lane :submit do
-    UI.message "ios submit()"
     pilot(
       ipa: RELEASED_IPA_PATH
     )

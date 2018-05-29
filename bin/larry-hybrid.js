@@ -12,10 +12,10 @@ function initializeHybridAppBuilder(args) {
 		//Raw config file is specified
 		if(args.options.config) {
 			try{
-				config = require(args.options.config);
+				config = require(pathUtils.resolve(args.options.config));
 			}
 			catch(e){
-				reject(new Error("Config File Not Found! You must supply a valid path to a json file."));
+				reject(new Error(`Config File (${args.options.config}) Not Found! You must supply a valid path to a json file.`));
 			}
 		}
 		//Specifc working directory is specified
@@ -50,12 +50,21 @@ vorpal
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
 	.action(function(args){
+		let hybridAppBuilder;
+		
+		let target = 'all';
+		if(args.options.target) {
+			target = args.options.target;
+		}
 		return initializeHybridAppBuilder(args)
-			.then((hybridAppBuilder) => {
-				let target = 'all';
-				if(args.options.target) {
-					target = args.options.target;
-				}
+			.then((hab) => {
+				hybridAppBuilder = hab;	
+				return hybridAppBuilder.setupBuild();
+			})
+			.then(() => {
+				return hybridAppBuilder.build(target);
+			})
+			.then(() => {
 				return hybridAppBuilder.release(target);
 			});
 	});
@@ -102,7 +111,7 @@ vorpal
 				hybridAppBuilder = appBuilder;
 			})
 			.then(() => {
-				return hybridAppBuilder.setupBuild(true);
+				return hybridAppBuilder.setupBuild();
 			})
 			.then(() => {
 				let target = 'all';
