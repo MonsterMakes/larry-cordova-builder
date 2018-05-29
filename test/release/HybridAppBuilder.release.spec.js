@@ -65,7 +65,7 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it.skip("should build and release a simple ios app", () => {
+    it.only("should build and release a simple ios app", () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
@@ -92,13 +92,15 @@ describe(TEST_NAME, () => {
                 expect(ipa).to.exist;
                 ipa = file(testDir+"_RELEASE_/wonky-mobile-web-0.0.0-debug.ipa");
                 expect(ipa).to.exist;
-                let xcarchive = dir(testDir+"_RELEASE_/wonky-mobile-web-0.0.0.xcarchive");
+                let xcarchive = dir(testDir+"_RELEASE_/wonky-mobile-web-0.0.0-debug.xcarchive");
                 expect(xcarchive).to.exist;
             })
             .then(()=>{
                 return hybridAppBuilder.release('ios');
             })
             .then(()=>{
+                let xcarchive = dir(testDir+"_RELEASE_/wonky-mobile-web-0.0.0.xcarchive");
+                expect(xcarchive).to.exist;
                 let ipa = file(testDir+"_RELEASE_/wonky-mobile-web-0.0.0.ipa");
                 expect(ipa).to.exist;
             })

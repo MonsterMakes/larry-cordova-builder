@@ -219,7 +219,7 @@ class HybridAppBuilder{
                         catch(e){
                             console.warn("For some reason we could NOT find a default cordova version, generating app package.json using latest cordova.");
                         }
-                        let name = _.dasherize(this._appName);
+                        let name = _.dasherize(_.decapitalize(_.humanize(this._appName)));
                         if(name.startsWith('@')){
                             name = name.slice(1);
                         }
