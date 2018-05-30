@@ -248,7 +248,7 @@ platform :ios do
   ##########
   lane :release do | options |
     #if someone has specified signing info
-    if (options[:appStoreProvisioningProfile] && options[:signingIdentity])
+    if (options[:appStoreProvisioningProfile])
         provisioningProfileUuid = setupProvisioningProfile(:provisioningProfile => options[:appStoreProvisioningProfile])
     else
       setupKeychain()

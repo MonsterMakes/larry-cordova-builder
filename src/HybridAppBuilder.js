@@ -176,12 +176,11 @@ class HybridAppBuilder{
     /**
      * Will make sure your project is properly setup to run the build.
      */
-    setupBuild(skipPrepare=false){
+    setupBuild(){
         let wwwDir = pathUtils.join(this._cwd,'www');
         let platformsDir = pathUtils.join(this._cwd,'platforms');
         let pluginsDir = pathUtils.join(this._cwd,'plugins');
         let packageJsonFile = pathUtils.join(this._cwd,'package.json');
-        let configXmlOriginalContents = undefined;
 
         return fileUtils.isDirectory(wwwDir)
             //symlink www
@@ -235,19 +234,6 @@ class HybridAppBuilder{
                         return fileUtils.writeContentsToFile(packageJsonFile, JSON.stringify(packageContents,null,'\t'), 0o644 & ~process.umask());
                     });
             })
-            //capture the current contents of config.xml
-            .then(()=>{
-                return this._retrieveConfigXmlContents()
-                    .then(
-                        (contents)=>{
-                            return configXmlOriginalContents = contents;
-                        },
-                        ()=>{
-                            //not found this is ok
-                            configXmlOriginalContents = undefined;
-                        }
-                    )
-            })
             //Initial Mutations
             .then(()=>{
                 console.info("");
@@ -272,21 +258,8 @@ class HybridAppBuilder{
                 return Promise.all(proms);
             })
             //prepare
-            .then(()=>{   
-                if(!skipPrepare){
-                    return this._retrieveConfigXmlContents()
-                        .then((contents)=>{
-                            if(configXmlOriginalContents !== contents){
-                                console.info("");
-                                console.info("*** Detected Changes in config.xml runnning cordova prepare...");
-                                
-                                return this._cordovaCmdUtils.prepareCordovaProject();
-                            }
-                            else{
-                                console.info("No Changes found in config.xml skipping cordova prepare...");
-                            }
-                        }); 
-                }
+            .then(()=>{
+                return this._cordovaCmdUtils.prepareCordovaProject();
             })
             //setup fastlane assets
             .then(()=>{
@@ -321,7 +294,6 @@ class HybridAppBuilder{
         this._validateTargetPlatform(targetPlatform);
         return this._fastlaneCmdUtils.executeFastlaneCmd(null,'release',{
             targetPlatform: targetPlatform,
-            signingIdentity: this._credentials.ios.signingIdentity,
             appStoreProvisioningProfile: this._credentials.ios.appStoreProvisioningProfile
         });
     }

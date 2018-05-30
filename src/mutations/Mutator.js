@@ -50,7 +50,7 @@ class Mutator{
                     return allProm.then(()=>{
                         let prom = Promise.resolve();
                         return prom.then(()=>{
-                            this._executeMutation(this._document,mutation);
+                            return this._executeMutation(this._document,mutation);
                         });
                     });
                 });
