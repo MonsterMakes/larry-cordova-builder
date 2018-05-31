@@ -32,6 +32,7 @@ class EnvLoader{
         let alias = process.env.ANDROID_KEYSTORE_ALIAS;
         let keyPass = process.env.ANDROID_KEY_PASS;
         let keystorePass = process.env.ANDROID_KEYSTORE_PASS;
+        let adhocProvisioningProfile = process.env.IOS_ADHOC_PROVISIONING_PROFILE;
         let appStoreProvisioningProfile = process.env.IOS_APPSTORE_PROVISIONING_PROFILE;
 
         return {
@@ -42,6 +43,7 @@ class EnvLoader{
                 keystorePass
             },
             ios: {
+                adhocProvisioningProfile,
                 appStoreProvisioningProfile
             }
         };

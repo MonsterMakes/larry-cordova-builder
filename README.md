@@ -38,6 +38,8 @@ These environment variables are used for the signing process
 - "IOS_EMAIL": The email associated with your ios devloper account
 - "FASTLANE_MATCH_GIT_URL": The url to the match git repo to be used for credentials, see https://docs.fastlane.tools/actions/match/ for more details.
 - "IOS_DEVELOPMENT_PROVISIONING_PROFILE": The signing identity to use during the build process, will default to whats found in match if not specified.
+    - This provisioning profile will be installed on the local machine during the BUILD process
+- "IOS_ADHOC_PROVISIONING_PROFILE": The signing identity to use during the release process, will default to whats found in match if not specified.
     - This provisioning profile will be installed on the local machine during the release process
 - "IOS_APPSTORE_PROVISIONING_PROFILE": The signing identity to use during the release process, will default to whats found in match if not specified.
     - This provisioning profile will be installed on the local machine during the release process
@@ -54,6 +56,7 @@ export IOS_TEAM_NAME="REPLACE_ME"
 export IOS_EMAIL="REPLACE_ME"
 export FASTLANE_MATCH_GIT_URL="REPLACE_ME"
 export IOS_DEVELOPMENT_PROVISIONING_PROFILE="REPLACE_ME"
+export IOS_ADHOC_PROVISIONING_PROFILE="REPLACE_ME"
 export IOS_APPSTORE_PROVISIONING_PROFILE="REPLACE_ME"
 ```
 

@@ -1,8 +1,8 @@
-git_url("{{credentials.ios.fastlaneMatchGitUrl}}")
+git_url("{{{credentials.ios.fastlaneMatchGitUrl}}}")
 
-username("{{credentials.ios.email}}") # Your Apple Developer Portal username
+username("{{{credentials.ios.email}}}") # Your Apple Developer Portal username
 
-app_identifier(["{{appBundleId}}"])
+app_identifier(["{{{appBundleId}}}"])
 
 # For all available options run `fastlane match --help`
 # Remove the # in the beginning of the line to enable the other options
