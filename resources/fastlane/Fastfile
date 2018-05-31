@@ -19,24 +19,24 @@ KEYCHAIN_PASSWORD = "larry4lyfe"
 
 CURRENT_DIR = File.expand_path("../", File.dirname(__FILE__))
 
-IOS_PROJECT_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcodeproj"
+IOS_PROJECT_PATH = "#{CURRENT_DIR}/platforms/ios/{{{appName}}}.xcodeproj"
 
 #Produced Build Assets
 CORDOVA_DEBUG_APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/debug/app-debug.apk"
 CORDOVA_RELEASE_APK_PATH = "#{CURRENT_DIR}/platforms/android/app/build/outputs/apk/release/app-release.apk"
-CORDOVA_DEBUG_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
-CORDOVA_RELEASE_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{appName}}.ipa"
-CORDOVA_XCARCHIVE_PATH = "#{CURRENT_DIR}/platforms/ios/{{appName}}.xcarchive"
+CORDOVA_DEBUG_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{{appName}}}.ipa"
+CORDOVA_RELEASE_IPA_PATH = "#{CURRENT_DIR}/platforms/ios/build/device/{{{appName}}}.ipa"
+CORDOVA_XCARCHIVE_PATH = "#{CURRENT_DIR}/platforms/ios/{{{appName}}}.xcarchive"
 
 RELEASE_DIR = "#{CURRENT_DIR}/_RELEASE_";
 
 #Produced Release Assets
-RELEASED_DEBUG_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.xcarchive"
-RELEASED_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.xcarchive"
-RELEASED_DEBUG_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.apk"
-RELEASED_APK_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.apk"
-RELEASED_DEBUG_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}-debug.ipa"
-RELEASED_IPA_PATH = "#{RELEASE_DIR}/{{appName}}-{{appVersion}}.ipa"
+RELEASED_DEBUG_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}-debug.xcarchive"
+RELEASED_XCARCHIVE_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}.xcarchive"
+RELEASED_DEBUG_APK_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}-debug.apk"
+RELEASED_APK_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}.apk"
+RELEASED_DEBUG_IPA_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}-debug.ipa"
+RELEASED_IPA_PATH = "#{RELEASE_DIR}/{{{appName}}}-{{{appVersion}}}.ipa"
 
 UI.message "*** Project root is #{CURRENT_DIR}"
 
@@ -132,7 +132,7 @@ platform :android do
       command: "-d install -r \"#{RELEASED_DEBUG_APK_PATH}\""
     )
     adb(
-      command: "shell am start -n {{appBundleId}}/.MainActivity"
+      command: "shell am start -n {{{appBundleId}}}/.MainActivity"
     )
   end
   ##########
@@ -142,10 +142,10 @@ platform :android do
     cordova(
       platform: 'android',
       release: true,
-      keystore_path: "{{credentials.android.keystore}}", 
-      keystore_alias: "{{credentials.android.alias}}", 
-      keystore_password: "{{credentials.android.keystorePass}}", 
-      key_password: "{{credentials.android.keyPass}}"
+      keystore_path: "{{{credentials.android.keystore}}}", 
+      keystore_alias: "{{{credentials.android.alias}}}", 
+      keystore_password: "{{{credentials.android.keystorePass}}}", 
+      key_password: "{{{credentials.android.keyPass}}}"
     )
 
     if !File.file?(CORDOVA_RELEASE_APK_PATH)
@@ -219,7 +219,7 @@ platform :ios do
         keychain_name: KEYCHAIN_NAME,
         keychain_password: KEYCHAIN_PASSWORD
       )
-      provisioningProfileUuid = ENV['sigh_{{appBundleId}}_development']
+      provisioningProfileUuid = ENV['sigh_{{{appBundleId}}}_development']
     end
     cordova(
       platform: 'ios',
@@ -257,7 +257,7 @@ platform :ios do
         keychain_name: KEYCHAIN_NAME,
         keychain_password: KEYCHAIN_PASSWORD
       )
-      provisioningProfileUuid = ENV['sigh_{{appBundleId}}_development']
+      provisioningProfileUuid = ENV['sigh_{{{appBundleId}}}_development']
     end
     cordova(
       platform: 'ios',
