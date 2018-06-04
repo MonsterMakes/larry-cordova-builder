@@ -65,7 +65,7 @@ describe(TEST_NAME, () => {
                 return Promise.reject(e);
             });
     });
-    it.only("should build and release a simple ios app", () => {
+    it.skip("should build and release a simple ios app", () => {
         let testDir = testUtils.getUniqueTestDirPath();
         fs.mkdirsSync(testDir);
         _setupEmptyCordovaDir(testDir);
