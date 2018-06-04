@@ -30,7 +30,7 @@ class CmdUtils{
             });
     }
     spawnCmd(cmd,args,cwd=this._cwd){
-        console.log(`Spawning cmd(${cmd}) in dir(${cwd})...`);
+        console.log(`Spawning cmd(${cmd} ${args}) in dir(${cwd})...`);
         return new Promise((resolve,reject)=>{
             //auto pipe std in/out/err to process
             let satanSpawn = spawn(cmd,args, {stdio:'inherit',cwd: this._cwd});
