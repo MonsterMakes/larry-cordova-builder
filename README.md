@@ -7,6 +7,10 @@ This project is designed to make a repeatable cordova build based on an existing
 ##SETUP
 1. Install cordova
     - npm install -g cordova
+2. Install fastlane 
+    - brew install ruby
+    - brew cask install fastlane
+    - gem install bundler
 
 ###Android
 Make sure you are running on a MAC and that you have the proper environment for building cordova apps setup.
@@ -17,13 +21,9 @@ The setup for android has been automated please run `resources/AndroidCleanInsta
 
 2. Depending on what mutations you add (like push notifications) you may also need cocoapods installed.
 ```
-gem install cocoapods
+sudo gem install cocoapods
 pod setup
 ```
-
-3. Create a keychain named `larry-hybrid-app` with password `larry4lyfe`
-- this will be used to house all the certs and keys
-- make sure its here `~/Library/Keychains/larry-hybrid-app.keychain-db`
 
 ###Environment Variables
 These environment variables are used for the signing process
