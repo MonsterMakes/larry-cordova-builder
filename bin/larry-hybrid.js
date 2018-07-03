@@ -49,9 +49,10 @@ vorpal
 	.option('--packageProperty <packageProperty>', 'The property within the package.json file that contains configuration.')
 	.option('--packageJson <packageJson>', 'The path to the package.json file to use for configuration.')
 	.option('--webPackageLocation <webPackageLocation>','The path to the web package location to use for configuration.')
+	.option('--skipBuild','If specified will skip the build phase, and only release.')
 	.action(function(args){
 		let hybridAppBuilder;
-		
+
 		let target = 'all';
 		if(args.options.target) {
 			target = args.options.target;
@@ -62,10 +63,18 @@ vorpal
 				return hybridAppBuilder.setupBuild();
 			})
 			.then(() => {
-				return hybridAppBuilder.build(target);
+				if(args.options.skipBuild){
+					vorpal.log('*** This is a release only action, skipping the build...');
+				}
+				else{
+					return hybridAppBuilder.build(target);
+				}
 			})
 			.then(() => {
 				return hybridAppBuilder.release(target);
+			})
+			.catch(e => {
+				process.exit(-1);
 			});
 	});
 
@@ -93,6 +102,9 @@ vorpal
 			})
 			.then((hybridAppBuilder) => {
 				return hybridAppBuilder.launch(target);
+			})
+			.catch(e => {
+				process.exit(-1);
 			});
 	});
 
@@ -123,6 +135,9 @@ vorpal
 			.then(() => {
 				vorpal.log('Your App has been successfully built.');
 				return Promise.resolve();
+			})
+			.catch(e => {
+				process.exit(-1);
 			});
 	});
 
@@ -145,6 +160,9 @@ vorpal
 			.then(()=>{
 				vorpal.log('Your App has been successfully setup.')
 				return Promise.resolve();
+			})
+			.catch(e => {
+				process.exit(-1);
 			});
 	});
 	
