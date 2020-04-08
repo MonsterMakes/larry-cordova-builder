@@ -1,3 +1,5 @@
+# THIS PROJECT HAS BECOME STALE AND WILL NO LONGER BE MAINTAINED
+
 <a href="https://www.npmjs.com/package/@monstermakes/larry-hybrid-app-builder"><img alt="larry-hybrid-app-builder" src="https://nodei.co/npm/larry-hybrid-app-builder.png"/></a>
 #larry-hybrid-app-builder
 
